@@ -71,32 +71,34 @@
           <table v-if="selectId&&selectId!=0" class="table" style="table-layout: fixed;border-left: 1px solid #ddd ">
             <tbody>
              <tr>
-               <td class="col-xs-6 col-md-3"><strong><span>地址集</span></strong></td>
-               <td class="col-xs-6 col-md-9 text-muted">{{selectAddress[0]}}</td>
+               <td class="col-xs-3 col-md-3"><strong><span>地址集</span></strong></td>
+               <td class="col-xs-9 col-md-9 text-muted">{{selectAddress[0]}}<a href="javascript:;" @click="openSelectAddress" style="margin-left: 10px; ">[显示全部]</a></td>
              </tr>
              <tr class="">
-               <td class="col-xs-6 col-md-3"><strong><span>拥有者</span></strong></td>
-               <td class="col-xs-6 col-md-9 text-muted">0.00001690265486725664 BTC per kB</td>
+               <td class="col-xs-3 col-md-3"><strong><span>拥有者</span></strong></td>
+               <td class="col-xs-9 col-md-9 text-muted">0.00001690265486725664 BTC per kB</td>
              </tr>
              <tr>
-               <td class="col-xs-6 col-md-3"><strong><span>交易次数</span></strong></td>
-               <td class="col-xs-6 col-md-9 text-muted">Oct 14, 2017 10:22:28 AM</td>
+               <td class="col-xs-3 col-md-3"><strong><span>交易次数</span></strong></td>
+               <td class="col-xs-9 col-md-9 text-muted">Oct 14, 2017 10:22:28 AM</td>
              </tr>
              <tr>
-               <td class="col-xs-6 col-md-3"><strong><span>交易地址</span></strong></td>
-               <td class="col-xs-6 col-md-9 text-muted">undefined NaN, NaN NaN:NaN:NaN PM</td>
+               <td class="col-xs-3 col-md-3"><strong><span>交易地址</span></strong></td>
+               <td class="col-xs-9 col-md-9 text-muted">undefined NaN, NaN NaN:NaN:NaN PM</td>
              </tr>
              <tr>
-               <td class="col-xs-6 col-md-3"><strong><span>最终余额</span></strong></td>
-               <td class="col-xs-6 col-md-9 text-muted">Unconfirmed</td>
+               <td class="col-xs-3 col-md-3"><strong><span>最终余额</span></strong></td>
+               <td class="col-xs-9 col-md-9 text-muted">Unconfirmed</td>
              </tr>
              <tr>
-               <td class="col-xs-6 col-md-3"><a class="btn btn-default" href="javascript:;"
-                       @click="addData"><small>地址详情</small>
-               </a></td>
-               <td class="col-xs-6 col-md-9"><a class="btn btn-default" href="javascript:;"
-                                     @click="addData"><small>手动扩线</small>
-               </a></td>
+               <td colspan="2" class="col-xs-12 col-md-12">
+                 <a class="btn btn-default" href="javascript:;"
+                    @click="openSelectAddress"><small>地址详情</small>
+                 </a>
+                 <a class="btn btn-default" href="javascript:;"
+                    @click="openSelectAddress" style="margin-left: 10px"><small>手动扩线</small>
+                 </a>
+               </td>
              </tr>
                <!-- <tr>
                   <td colspan="2"><strong><span>地址集:</span></strong></td>
@@ -167,11 +169,15 @@
       >
       </el-pagination>
     </Panelwrap>
+
+    <!--地址集选择列表begin-->
+    <selectAddress id="myModalE"></selectAddress>
   </div>
 </template>
 <script>
   import PageHeader from '../../components/PageHeader/'
   import Panelwrap from'../../components/PanelWrap/'
+  import selectAddress from'../../components/selectAddress/'
   export default {
     data(){
       /*1是终点，2是起点，3是过渡*/
@@ -660,6 +666,9 @@
           }
         })
       },
+      openSelectAddress(){
+        $("#myModalE").modal("show")
+      },
       initialize(){
         let address = this.$route.query.address
         this.$http.all([this.getData(address, true),this.getTrade(address),this.getTradeAdd(address)])
@@ -673,7 +682,8 @@
     },
     components: {
       PageHeader,
-      Panelwrap
+      Panelwrap,
+      selectAddress
     }
   }
 </script>

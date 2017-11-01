@@ -4,40 +4,22 @@
       <div class="modal-content">
         <div class="modal-header text-center">
           <button @click="resetForm('ruleAddress')" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">添加分析任务</h4>
+          <h4 class="modal-title">地址集</h4>
         </div>
         <div class="modal-body">
           <el-form class="form-horizontal" :model="ruleAddress" :rules="addrules" ref='ruleAddress'>
             <!--输入地址-->
-            <div class="form-group">
-              <div class="col-sm-10">
-                <el-form-item prop='add'>
-                  <el-input type="text" placeholder="请输入地址或者身份证号或者名称"  prefix-icon="el-icon-search" v-model='ruleAddress.add' style="border-left: none">
-                   <template slot="prepend"  style="border-right: none"><i class="fa fa-search"  style="color: rgba(0, 0, 0, 0.5)"></i></template>
-                  </el-input>
-                </el-form-item>
-              </div>
-         <!--     <label  class="col-sm-2 control-label form-label">地址</label>-->
-              <button type="button" class="col-sm-2 btn btn-default" @click="submitForm('ruleAddress')">查询</button>
-            </div>
-
-            <div class="title">需进行分析的地址或对象</div>
-            <ul class="selectList">
-              <li>
-                <span>地址&nbsp;:&nbsp;</span> <span>13uEiASd7VyfE7qWGYzZtanMiYguZM5c53</span><span class="clear"><i class="fa fa-times" ></i></span>
-              </li>
-              <li>
-                <span>对象&nbsp;:&nbsp;</span> <span>王浩 (330304199009030919)</span><span class="clear"><i class="fa fa-times" ></i></span>
-              </li>
-              <li style="border: none">
-                <span>地址&nbsp;:&nbsp;</span> <span>13uEiASd7VyfE7qWGYzZtanMiYguZM5c53</span><span class="clear"><i class="fa fa-times" ></i></span>
-              </li>
+            <div>该地址集包含3个地址，可手动选择一个进行扩线分析</div>
+            <ul style="color: #37363e; font-size: 30px">
+              <li><i class="fa fa-check-circle" ></i></li>
+              <li><i class="fa fa-check-circle-o"></i></li>
             </ul>
           </el-form>
         </div>
-        <div class="modal-footer" style="border: none">
+        <div class="modal-footer">
           <button type="button" class="btn btn-white" data-dismiss="modal" @click="resetForm('ruleAddress')">取消</button>
-          <button type="button" class="btn btn-default" @click="submitForm('ruleAddress')">添加</button>
+          <button type="button" class="btn btn-default" @click="submitForm('ruleAddress')">地址详情</button>
+          <button type="button" class="btn btn-default" @click="submitForm('ruleAddress')">手动扩线</button>
         </div>
       </div>
     </div>

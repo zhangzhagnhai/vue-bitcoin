@@ -13,6 +13,7 @@ import 'assets/styles/functional.styl'
 
 import 'assets/css/root.css'
 import 'assets/css/netcss.css'
+import 'assets/css/task.css'
 import 'assets/css/vis.min.css'
 
 Object.keys(plugins).forEach(key => Vue.use(plugins[key]))

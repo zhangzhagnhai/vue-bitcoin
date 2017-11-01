@@ -1,6 +1,6 @@
 const path = require('path')
 console.log(path)
-var api_base = process.env.NODE_ENV === 'production' ? 'http://localhost' :'http://192.168.1.208:9031' /*'http://btcmonitor.eshanren.com'*///btcmonitor.eshanren.com
+var api_base = process.env.NODE_ENV === 'production' ? 'http://localhost' :'http://192.168.1.210:9031' /*'http://btcmonitor.eshanren.com'*///btcmonitor.eshanren.com
 /*'http://btcmonitor.eshanren.com'*/
 /*'http://192.168.2.134:8000/'*/
 /*'http://192.168.1.229:8088/'*/

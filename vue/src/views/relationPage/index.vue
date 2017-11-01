@@ -138,7 +138,7 @@
           addTask
         },
         mounted(){
-          this.initialize()
+          //this.initialize()
         }
     }
 </script>
