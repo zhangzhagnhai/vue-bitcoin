@@ -3,23 +3,22 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header text-center">
-          <button @click="resetForm('ruleAddress')" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <button @click="resetForm()" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
           <h4 class="modal-title">地址集</h4>
         </div>
         <div class="modal-body">
-          <el-form class="form-horizontal" :model="ruleAddress" :rules="addrules" ref='ruleAddress'>
+          <el-form class="form-horizontal">
             <!--输入地址-->
-            <div>该地址集包含3个地址，可手动选择一个进行扩线分析</div>
-            <ul style="color: #37363e; font-size: 30px">
-              <li><i class="fa fa-check-circle" ></i></li>
-              <li><i class="fa fa-check-circle-o"></i></li>
+            <div style="margin-bottom: 5px">该地址集包含{{selectAddress.length}}个地址，可手动选择一个查看详情</div>
+            <ul class="selectAddress">
+              <li v-for="(address,index) in selectAddress" @click="checkIndex=index"><i :class="checkIndex==index?'fa fa-check-circle':'fa fa-check-circle-o'"></i><span>{{address}}</span></li>
             </ul>
           </el-form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-white" data-dismiss="modal" @click="resetForm('ruleAddress')">取消</button>
-          <button type="button" class="btn btn-default" @click="submitForm('ruleAddress')">地址详情</button>
-          <button type="button" class="btn btn-default" @click="submitForm('ruleAddress')">手动扩线</button>
+          <button type="button" class="btn btn-white" data-dismiss="modal">取消</button>
+          <router-link type="button" class="btn btn-default" :to = "{ name: 'addressdetails',query:{ address: selectAddress[checkIndex]}}"  tag="button">地址详情</router-link>
+         <!-- <button type="button" class="btn btn-default" data-dismiss="modal" @click="addData()">手动扩线</button>-->
         </div>
       </div>
     </div>
@@ -30,103 +29,27 @@
   import addObject from'../../components/addObject/'
   export default {
     data(){
-      var checkAddress = (rule, value, callback) =>{
-        if (value === '') {
-          return callback(new Error('搜索内容不能为空'));
-        }else if( value.length < 26 || value.length >34 ){
-          return callback(new Error('地址输入有误'));
-        }else {
-          callback()
-        }
-      }
-      var checkTextArea = (rule, value, callback) =>{
-        let _length = 0
-        for (var i = 0; i < value.length; i++) {
-          if (value[i].charCodeAt(0) > 255) {
-            _length += 2
-          } else {
-            _length += 1
-          }
-        }
-        if (_length > 200) {
-          return callback(new Error('最大长度不能超过200字节'));
-        } else{
-          callback()
-        }
-      }
       return {
-        ruleAddress: {
-          add: '',
-          remark: '',
-          objectValue: '',
-        },
-        addrules:{
-          add:[
-            { validator: checkAddress, trigger: 'blur' }
-          ],
-          remark:[
-            { validator: checkTextArea, trigger: 'blur' }
-          ],
-        },
+        addressList: ["13uEiASd7VyfE7qWGYzZtanMiYguZM5c53","13uEiASd7VyfE7qWGYzZtanMiYguZM5c55","13uEiASd7VyfE7qWGYzZtanMiYguZM5c57"],
+        checkIndex:0,
         objectData:''
       }
     },
-    props:["id"],
+    props:["id","selectAddress","source"],
     methods: {
-      resetForm(formName) {
-        this.$refs[formName].resetFields();
-      },
-      submitForm(formName) {
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            this.addAddress()
-          } else {
-            return false;
-      }
-      });
-      },
-      addAddress(){
-        let params = {
-          address: this.ruleAddress.add,
-          remark: this.ruleAddress.remark,
-          targetId:this.ruleAddress.objectValue,
-          addup : 'a',
-        }
-        this.loading = true
-        this.$http.post('/api/address/insertupdate',params)
-          .then(res =>{
-          console.log(res)
-        if (res.data.success) {
-          this.$store.commit(addressUpdate,true);
-          $("#"+this.id).modal("hide");
-          this.$message({
-            message: '添加成功',
-            type: 'success'
-          })
-          this.loading = false;
-          //this.ruleAddress = ''
-          this.resetForm('ruleAddress');
-          this.$emit('addSuccess', true);
-          //this.getList()
-        }else{
-          this.loading = false
-          this.$message({
-            message: res.data.message,
-            type: 'error'
-          })
-        }
-      })
+      resetForm(){},
+      addData(){
+        this.$emit('addData', this.addressList[this.checkIndex]);
       },
       getObjectData(params){
         this.loading = true;
         this.$http.post('/api/target/targetList',params)
           .then(res =>{
           this.loading = false
-        this.objectData = res.data.data;
-      })
+          this.objectData = res.data.data;
+       })
       },
       openObject(){
-        // $('#myModalA').data('index',1)
         $("#myModalA").modal({ show: true }, {noMore: '1'})
       }
     },

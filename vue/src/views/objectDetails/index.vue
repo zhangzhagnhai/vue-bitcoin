@@ -43,7 +43,7 @@
 					</div>
 					</div>
 					<div class="col-md-4">
-						<router-link :to="{name:'objectCharts',query:{ id: id}}" class="btn btn-default pull-right">对象分析</router-link>
+						<a href="javascript:void(0)" @click="openObjectCharts"  class="btn btn-default pull-right">对象分析</a>
 					</div>
 				</div>
 				<!--基本信息end-->
@@ -399,7 +399,8 @@ export default {
 
     var checkPhone = (rule, value, callback) =>{
     	var reg = /^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/
-    	if (value != '' && !reg.test(value)) {
+      console.log(value)
+    	if (value && !reg.test(value)) {
         return callback(new Error('手机号码输入有误'));
     	} else {
     		callback()
@@ -478,7 +479,38 @@ export default {
 		this.getAddressList()
   },
   methods:{
-
+    openObjectCharts(){
+      //this.$router.push({name:'objectCharts',query:{analysisId: this.data.analysisId}})
+      if (this.data.analysis ===0) {
+        this.addTask();
+      }else if(this.data.analysis ===1&&this.data.analysisId !=0){
+        this.$router.push({name:'objectCharts',query:{analysisId: this.data.analysisId}})
+      }else{
+        this.$message({
+          message: '已经开启对象分析任务，请到关联分析页面查看进度',
+          type: 'warning',
+        })
+      }
+    },
+    addTask(){
+      this.$http.post('/api/view/addAnalysisTx',{message:this.data.name+"("+this.data.code+")"})
+        .then(res =>{
+          if (res.data.success) {
+            this.loading = false;
+            this.$message({
+              message: '开启对象分析任务，请到关联分析页面查看进度',
+              type: 'success',
+            })
+          }
+          else{
+            this.$message({
+              message: res.data.message,
+              type: 'warning',
+            });
+            this.loading = false
+          }
+        })
+    },
 		initialize(id){
 			this.$http.all([this.getData(id),this.getTxList(),this.getAddList(),this.getTxTarget()])
 		},
@@ -619,11 +651,11 @@ export default {
 				})
 				.catch(err =>{
 					if (err) {
-						this.$message({
-							message: '登录失效,请重新登录',
-							type: 'warning',
-						})
-						setTimeout(()=>{this.$router.push('/loginpage')},3000)
+            this.loading=false
+            this.$message({
+              message: '数据返回异常，请尝试刷新或者重新登录',
+              type: 'warning',
+            })
 					}
 				})
 		},
@@ -645,11 +677,12 @@ export default {
 				})
 				.catch(err =>{
 					if (err) {
-						this.$message({
-							message: '登录失效,请重新登录',
-							type: 'warning',
-						})
-						setTimeout(()=>{this.$router.push('/loginpage')},3000)
+            this.loading=false
+            this.$message({
+              message: '数据返回异常，请尝试刷新或者重新登录',
+              type: 'warning',
+            })
+						//setTimeout(()=>{this.$router.push('/loginpage')},3000)
 					}
 			})
 		},
@@ -706,7 +739,7 @@ export default {
       });
     },
   	remoteMethod(query) {
-        if (query !== '') {
+        if (query) {
           this.loading = true;
           setTimeout(() => {
             this.loading = false;

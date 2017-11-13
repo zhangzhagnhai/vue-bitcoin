@@ -21,17 +21,17 @@
 	          </el-input>
 					</el-form-item>
         </div>
-        <div class="checkbox checkbox-primary">
+        <div class="checkbox checkbox-primary" style="visibility: hidden">
           <input id="checkbox101" type="checkbox" checked>
           <label for="checkbox101"> Remember Me</label>
         </div>
         <input type="button"  @click="submitForm('loginForm')" class="btn btn-default btn-block" value="LOGIN">
       </div>
     </el-form>
-    <div class="footer-links row">
+    <!--<div class="footer-links row">
       <div class="col-xs-6"><a href="#"><i class="fa fa-external-link"></i> Register Now</a></div>
       <div class="col-xs-6 text-right"><a href="javascript:void(0);"><i class="fa fa-lock"></i> Forgot password</a></div>
-    </div>
+    </div>-->
   </div>
 </template>
 <script>

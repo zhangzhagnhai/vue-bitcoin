@@ -103,7 +103,7 @@ export default {
   data() {
     return {
     	loading: false,
-    	totalData: '',
+    	totalData: {},
     	lists: '',
     	defaultPage: 1,
     	acceptType: '',
@@ -118,16 +118,15 @@ export default {
 			this.$http.get('/api/target/index')
 				.then(res =>{
 					this.loading = false
-					this.totalData = res.data.data;
+          if(res.data.data)
+				  	this.totalData = res.data.data;
 			})
 			  .catch(err =>{
-					if (err) {
-						this.$message({
-							message: '登录失效,请重新登录',
-							type: 'warning',
-						})
-						setTimeout(()=>{this.$router.push('/loginpage')},3000)
-					}
+            this.loading=false
+            this.$message({
+              message: '数据返回异常，请尝试刷新或者重新登录',
+              type: 'warning',
+            })
 				})
 		},
     showLoading(e){
@@ -139,7 +138,8 @@ export default {
 			this.$http.post('/api/target/page',params)
 				.then(res =>{
 					this.loading = false
-					this.lists = res.data.data
+          if( res.data.data)
+					  this.lists = res.data.data
 					if(this.lists.list.length == 0){
 						this.$message({
 							message: '暂无记录',
@@ -148,13 +148,11 @@ export default {
 					}
 				})
 				.catch(err =>{
-					if (err) {
-						this.$message({
-							message: '登录失效,请重新登录',
-							type: 'warning',
-						})
-						setTimeout(()=>{this.$router.push('/loginpage')},3000)
-					}
+            this.loading=false
+            this.$message({
+              message: '数据返回异常，请尝试刷新或者重新登录',
+              type: 'warning',
+            })
 				})
 		},
 		searchName(value){
@@ -174,7 +172,7 @@ export default {
 		},
 
 		handleCurrentChange(value){
-			this.getList({ pageNumber:value, desc : this.sortType, orderType: this.acceptType, startTime: this.startTime, endTime: this.endTime})
+			this.getList({ pageNumber:value, desc : this.sortType,  startTime: this.startTime, endTime: this.endTime})
 		},
 
 		initialize(){
@@ -196,7 +194,7 @@ export default {
   },
   created(){
 		//this.getAddressList()
-    console.log(this.$store.state.object.update)
+   // console.log(this.$store.state.object.update)
   },
   mounted(){
     //this.getAddressList()

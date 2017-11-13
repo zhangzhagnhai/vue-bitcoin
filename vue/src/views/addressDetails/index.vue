@@ -35,7 +35,8 @@
 					</div>
 				</div>
 				<div class="col-md-4">
-					<router-link :to="{ name: 'addressCharts',query:{ address: data.address }}" class="btn btn-default pull-right">地址分析</router-link>
+				<!--	<router-link :to="{ name: 'addressCharts',query:{ address: data.address }}" class="btn btn-default pull-right">地址分析</router-link>-->
+          <a href="javascript:void(0)" @click="openAddressCharts" class="btn btn-default pull-right">地址分析</a>
 				</div>
 			</div>
 			<!--基本信息end-->
@@ -366,6 +367,38 @@ export default {
 			   	})
 			}
 		},
+    openAddressCharts(){
+      //this.$router.push({name:'addressCharts',query:{address: this.data.analysisId}})
+      if (this.data.analysis ===0) {
+        this.addTask();
+      }else if(this.data.analysis ===1&&this.data.analysisId !=0){
+        this.$router.push({name:'addressCharts',query:{analysisId: this.data.analysisId}})
+      }else{
+        this.$message({
+          message: '已经开启地址分析任务，请到关联分析页面查看进度',
+          type: 'warning',
+        })
+      }
+    },
+    addTask(){
+      this.$http.post('/api/view/addAnalysisTx',{message:this.data.address})
+        .then(res =>{
+          if (res.data.success) {
+            this.loading = false;
+            this.$message({
+              message: '开启地址分析任务，请到关联分析页面查看进度',
+              type: 'success',
+            })
+          }
+          else{
+            this.$message({
+              message: res.data.message,
+              type: 'warning',
+            });
+            this.loading = false
+          }
+        })
+    },
   	resetForm(formName) {
       this.$refs[formName].resetFields();
     },
@@ -381,10 +414,10 @@ export default {
 				.catch(err =>{
           if (err) {
 						this.$message({
-							message: '登录失效,请重新登录',
+							message: '数据返回异常，请尝试刷新或者重新登录',
 							type: 'warning',
 						})
-						setTimeout(()=>{this.$router.push('/loginpage')},3000)
+						//setTimeout(()=>{this.$router.push('/loginpage')},3000)
 					}
     		})
     	},
@@ -435,11 +468,12 @@ export default {
 				})
 				.catch(err =>{
           			if (err) {
-						this.$message({
-							message: '登录失效,请重新登录',
-							type: 'warning',
-						})
-						setTimeout(()=>{this.$router.push('/loginpage')},3000)
+                  this.loading=false
+                  this.$message({
+                    message: '数据返回异常，请尝试刷新或者重新登录',
+                    type: 'warning',
+                  })
+					//	setTimeout(()=>{this.$router.push('/loginpage')},3000)
 					}
     		})
 		},

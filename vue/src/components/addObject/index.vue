@@ -244,9 +244,12 @@
         this.$http.post('/api/address/addressList')
           .then(res =>{
           this.addlists = res.data.data
-          this.optionlists = this.addlists.map(item =>{
-            return {value: item, label: item};
-          });
+            if( this.addlists ){
+              this.optionlists = this.addlists.map(item =>{
+                return {value: item, label: item};
+              });
+            }
+
         })
       },
     },

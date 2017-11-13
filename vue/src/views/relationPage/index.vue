@@ -11,6 +11,7 @@
                v-on:searchClick='searchName'
                v-on:sortItem='sortItem'
                v-on:dataSelect='dataChange'
+               v-on:filterClick="filterClick"
                style="padding-top: 20px;"
     >
       <div class="panel-body table-responsive">
@@ -34,21 +35,27 @@
           <tbody>
           <tr v-if='lists' v-for='(item,index) in lists.list'>
             <td>
-              <router-link :to="{ name: 'objectdetails', query:{ id: item.target_id } }"class="txid color4">{{item.name}}&nbsp<small>{{item.code}}</small></router-link>
+              <!--<router-link v-if="item.type==1" :to="{ name: 'addressCharts', query:{ address: item.title,analysisId:item.analysis_id } }"class="txid color4" style="line-height:normal; width: auto">{{item.analysis_id}}</router-link>
+              <router-link v-if="item.type==2" :to="{ name: 'objectCharts', query:{ analysisId:item.analysis_id } }"class="txid color4" style="line-height:normal; width: auto">{{item.analysis_id}}</router-link>
+              --><a href="javascript:void(0)" class="txid color4" style="line-height:normal; width: auto">{{item.analysis_id}}</a>
             </td>
-            <td><small>{{item.time}}</small></td>
-            <td><span :class="[item.source_from === 'manual' ? 'color10' : 'color5']">{{item.source_from | sourceFilter}}</span></td>
-            <td v-if="index%2==0" style="color: #399bff"><i class="fa fa-check" aria-hidden="true"></i>&nbsp;已完成</td>
-            <td v-if="index%2==1" ><i class="fa fa-circle-o-notch" aria-hidden="true"></i>&nbsp;正在分析中</td>
+            <td><small>{{(item.type==1?"地址:":"对象:")+item.title}}</small></td>
+            <td><span :class="[item.source_from === 'manual' ? 'color10' : 'color5']">{{item.schedule}}</span></td>
+            <td v-if="item.state==0" >未开始</td>
+            <td v-if="item.state==1" style="color: #399bff"><i class="fa fa-check" aria-hidden="true"></i>&nbsp;已完成</td>
+            <td v-if="item.state==2" ><i class="fa fa-circle-o-notch" aria-hidden="true"></i>&nbsp;正在分析中</td>
 
-            <td>{{item.balance | feeFilter }} BTC</td>
+            <td>{{item.time | feeFilter }}</td>
             <td>
-              <div v-if="index%2==0">
-                <router-link :to="{ name: 'objectdetails', query:{ id: item.target_id } }" class="btn btn-default btn-sm f-size-12">查看详情</router-link>
-                <router-link :to="{ name: 'objectdetails', query:{ id: item.target_id } }" class="btn btn-default btn-sm f-size-12">删除</router-link>
+              <div v-if="item.state==0">
+                 <button @click="delConfirm(item,1)" class="btn btn-default btn-sm f-size-12">删除</button>
               </div>
-              <div v-if="index%2==1">
-                <router-link :to="{ name: 'objectdetails', query:{ id: item.target_id } }" class="btn btn-default btn-sm f-size-12">取消分析</router-link>
+              <div v-if="item.state==1">
+                <router-link :to="{ name: item.type==1?'addressCharts':'objectCharts', query:{analysisId:item.analysis_id } }" class="btn btn-default btn-sm f-size-12">查看详情</router-link>
+                  <button @click="delConfirm(item,1)" class="btn btn-default btn-sm f-size-12">删除</button>
+              </div>
+              <div v-if="item.state==2">
+                <button @click="delConfirm(item,2)" class="btn btn-default btn-sm f-size-12">取消分析</button>
               </div>
             </td>
           </tr>
@@ -65,7 +72,7 @@
       </el-pagination>
     </Panelwrap>
     <!--添加分析任务弹窗-->
-    <addTask id="myModalD"></addTask>
+    <addTask id="myModalD" @addTask="addTask"></addTask>
   </div>
 </template>
 <script>
@@ -81,42 +88,72 @@
               defaultPage: 1,
               acceptType: '',
               sortType: '',
+              state:'',
               startTime: '',
-              endTime: ''
+              endTime: '',
+              getListTimer:'',
+              scheduleTimer:''
             }
         },
         methods: {
           getList(params){
-            this.loading = true;
-            this.$http.post('/api/target/page',params)
+            clearInterval(this.getListTimer);
+            this.getListData(params)
+            /*定时获取任务分析列表*/
+            this.getListTimer=setInterval(()=>{
+              this.getListData(params,true)
+            },30*1000)
+          },
+          getListData(params,isUpdate){
+            if (!isUpdate)
+              this.loading = true;
+            this.$http.post('/api/view/page',params)
               .then(res =>{
-              this.loading = false
-            this.lists = res.data.data
-            if(this.lists.list.length == 0){
-              this.$message({
-                message: '暂无记录',
-                type: 'warning',
-              })
-            }
-          })
-          .catch(err =>{
-              if (err) {
+                this.loading = false
+                if( res.data.data&&res.data.data.list.length>0){
+                  this.lists = res.data.data
+                //  this.autoSchedule();
+                }else{
+                  this.lists=[];
+                  this.$message({
+                    message: '暂无记录',
+                    type: 'warning',
+                  })
+                }
+              }).catch(err =>{
+              if (!isUpdate) {
+                this.loading=false
                 this.$message({
-                  message: '登录失效,请重新登录',
+                  message: '数据返回异常，请尝试刷新或者重新登录',
                   type: 'warning',
                 })
-                setTimeout(()=>{this.$router.push('/loginpage')},3000)
               }
             })
           },
+          autoSchedule(){
+            /*前端计算任务进度*/
+            clearInterval(this.scheduleTimer);
+            this.scheduleTimer=setInterval(()=>{
+              for(var i=0;i<this.lists.list.length;i++){
+               // this.lists.list[i].schedule=parseInt(this.lists.list[i].schedule)+1+"%"
+              }
+            },1*1000)
+
+          },
+          addTask(){
+            this.getList();
+          },
           searchName(value){
-            console.log("search")
-            this.getList({name:value})
+            this.getList({message:value})
           },
           sortItem(arg1,arg2){
             this.acceptType = arg1
             this.sortType = arg2
             this.defaultPage = 1
+            this.handleCurrentChange()
+          },
+          filterClick(state){
+            this.state=state;
             this.handleCurrentChange()
           },
           dataChange(val){
@@ -126,10 +163,50 @@
             this.handleCurrentChange()
           },
           handleCurrentChange(value){
-            this.getList({ pageNumber:value, desc : this.sortType, orderType: this.acceptType, startTime: this.startTime, endTime: this.endTime})
+            this.getList({ pageNumber:value, desc : this.sortType, orderType: this.acceptType, states:this.state})
           },
           initialize(){
             this.$http.all([this.getList()])
+          },
+          delTarget(type,analysisId){
+            if(type-0==1){
+              return this.$http.post('/api/view/delete/'+analysisId)
+            }else{
+              return this.$http.post('/api/view/closeAnalysisMq/'+analysisId)
+            }
+          },
+          delConfirm(item,type){
+            var typeString=type==1?"删除":"取消";
+            this.$confirm('是否'+typeString+'该报告?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                beforeClose: (action, instance, done) =>{
+                if (action === 'confirm'){
+                    instance.confirmButtonLoading = true;
+                    instance.confirmButtonText = typeString+'中...';
+                    this.delTarget(type,item.analysis_id).then(res =>{
+                      if (res.data.success)
+                      {
+                          instance.confirmButtonLoading = false;
+                          this.loading = false;
+                          this.getList();
+                          done();
+                          this.$message({
+                              type: 'success',
+                              duration: 2000,
+                              message:res.data.message
+                            })
+                     }else{
+                        instance.confirmButtonLoading = false;
+                        this.loading = false
+                        this.$message.error("")
+                        done()
+                      }})
+                }else{
+                  done()
+                }}
+            })
           },
         },
         components: {
@@ -138,7 +215,10 @@
           addTask
         },
         mounted(){
-          //this.initialize()
+          this.initialize()
+        },
+        destroyed(){
+          clearInterval(this.getListTimer);
         }
     }
 </script>

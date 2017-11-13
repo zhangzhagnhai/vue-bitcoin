@@ -99,7 +99,7 @@ export default {
 	},
   data() {
     return {
-    	items: '',
+    	items: {},
     	lists:[],
     	loading:false,
     	desc:true,
@@ -117,7 +117,9 @@ export default {
 		getData(){
 			this.$http.get('/api/address/index')
 				.then(res =>{
-				this.items = res.data.data
+				  if(res.data.data){
+            this.items = res.data.data
+          }
 			})
 				.catch(err =>{
 					if (err) {
@@ -136,7 +138,8 @@ export default {
 			this.$http.post('/api/address/page',params)
 				.then(res =>{
 					this.loading = false
-					this.lists = res.data.data
+          if(res.data.data)
+				  	this.lists = res.data.data
 					if (this.lists.list.length==0) {
 						this.$message({
 							message: '暂无记录',
@@ -146,11 +149,11 @@ export default {
 				})
 				.catch(err =>{
 					if (err) {
-						this.$message({
-							message: '登录失效,请重新登录',
-							type: 'warning',
-						})
-						setTimeout(()=>{this.$router.push('/loginpage')},3000)
+					  this.loading=false
+            this.$message({
+              message: '数据返回异常，请尝试刷新或者重新登录',
+              type: 'warning',
+            })
 					}
 				})
 		},

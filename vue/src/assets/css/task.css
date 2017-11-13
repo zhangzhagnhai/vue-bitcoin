@@ -10,4 +10,9 @@
 
 .selectList li{border-bottom: 1px solid #dddddd; line-height: 40px; height: 40px; display: block;}
 .selectList li span{float: left;}
-.selectList li .clear{color: black; font-size: 30px; line-height: 35px; float: right;}
+.selectList li .clear{color: black; font-size: 30px; line-height: 35px; float: right;  cursor: pointer;}
+
+.selectAddress{color: #37363e; }
+.selectAddress li{line-height: 40px; height: 40px;}
+.selectAddress li i{font-size: 30px;float: left;line-height: 40px;}
+.selectAddress li span{margin-left: 10px;}

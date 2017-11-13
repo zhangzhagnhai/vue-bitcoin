@@ -32,4 +32,14 @@ export default {
 			return '0.00'
 		} else return val
 	},
+
+  taskStatusFilter(val){
+    if (val == 0){
+      return "未开始"
+    } else if(val == 1){
+      return "已完成"
+    } else {
+      return "正在进行"
+    }
+  }
 }

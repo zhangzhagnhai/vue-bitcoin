@@ -53,23 +53,23 @@
 					</li>
 				</ul>
 			</li>
-			<li class="link">
+			<!--<li class="link">
 				<a href="javascript:void(0)" class="notifications">您有6个新消息</a>
-			</li>
+			</li>-->
 			<li class="dropdown link">
-				<a href="javascript:void(0)" data-toggle="dropdown" class="dropdown-toggle profilebox"><img src="../../assets/images/profileimg.png" alt="img"><b>13758707875</b><span class="caret"></span></a>
+				<a href="javascript:void(0)" data-toggle="dropdown" class="dropdown-toggle profilebox"><img src="../../assets/images/profileimg.png" alt="img"><b>{{account}}</b><span class="caret"></span></a>
 				<ul class="dropdown-menu dropdown-menu-list dropdown-menu-right">
 					<li role="presentation" class="dropdown-header">账户管理</li>
 					<li>
-						<a href="javascript:void(0)"><i class="fa falist fa-key"></i>修改密码</a>
+						<a href="#" data-toggle="modal" data-target="#changePassword"><i class="fa falist fa-key"></i>修改密码</a>
 					</li>
-					<li>
-						<a href="javascript:void(0)"><i class="fa falist fa-wrench"></i>设置</a>
-					</li>
-					<li class="divider"></li>
-					<li>
-						<a href="javascript:void(0)"><i class="fa falist fa-lock"></i>锁屏</a>
-					</li>
+          <!--<li>
+                        <a href="javascript:void(0)"><i class="fa falist fa-wrench"></i>设置</a>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        <a href="javascript:void(0)"><i class="fa falist fa-lock"></i>锁屏</a>
+                    </li>-->
 					<li @click='loginOut'>
 						<a href="javascript:void(0)"><i class="fa falist fa-power-off"></i>退出登录</a>
 					</li>
@@ -80,6 +80,7 @@
     <div v-if="loading" class="loading"><img src="../../assets/img/loading.gif" alt="loading-img"></div>
     <addAddress id="myModalB" @loading="objectLoading" @addSuccess="objectSuccess"></addAddress>
     <addObject id="myModalA" @loading="objectLoading" @addSuccess="objectSuccess"></addObject>
+    <changePassword></changePassword>
   </div>
 </template>
 
@@ -88,10 +89,12 @@ import { mapState } from 'vuex'
 import { LOGINOUT } from '../../store/types'
 import addObject from'../../components/addObject/'
 import addAddress from'../../components/addAddress/'
+import changePassword from'../../components/changePassword/'
 export default {
   components: {
     addObject,
-    addAddress
+    addAddress,
+    changePassword
   },
   data() {
     return {
@@ -103,6 +106,7 @@ export default {
   }),
   methods: {
     loginOut() {
+      //console.log(this.account)
       this.$http.get('/admin/loginOut',{'account': this.account})
       .then(res => {
         if (res.data.success) {
@@ -123,15 +127,15 @@ export default {
     },
   },
   mounted() {
-    $('.sidebar-open-button').on('click', function () {
+    $('.sidebar-open-button , .sidebar-open-button-mobile').on('click', function () {
       if ($('.sidebar').hasClass('active')) {
         $('.sidebar').removeClass('active')
         $('.content').css({ 'marginLeft': 250, 'transition': 'all 0.4s ease-in-out' })
-        $('.sidebar').css({ 'marginLeft': 0, 'transition': 'all 0.4s ease-in-out' })
+        $('.sidebar').css({ 'marginLeft': 0, 'transition': 'all 0.4s ease-in-out'})
 	    } else {
         $('.sidebar').addClass('active')
         $('.content').css({ 'marginLeft': 0, 'transition': 'all 0.4s ease-in-out' })
-        $('.sidebar').css({ 'marginLeft': -250, 'transition': 'all 0.4s ease-in-out' })
+        $('.sidebar').css({ 'marginLeft': -250, 'transition': 'all 0.4s ease-in-out'})
 
       }
     })

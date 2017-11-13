@@ -4171,7 +4171,7 @@ Widgets
 .show-more{
   position: absolute;
   left: 0;
-  bottom: 3px;
+  bottom: -2px;
   display: block;
   height: 14px;
   width: 100%;

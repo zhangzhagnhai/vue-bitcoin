@@ -40,7 +40,7 @@
 						</a>
             <div class="panel-sort" v-if="sortBtnType === 'relationPage' " >
               <ul>
-                <li v-for="(item, index) in relationState" :class="{ 'selected': isSearchSelect === index }" v-on:click="searchClick(item.conditionType,index)" style="width: 103px; text-align: center">{{item.content}}</li>
+                <li v-for="(item, index) in relationState" :class="{ 'selected': isSearchSelect === index }" v-on:click="filterClick(index,item.state)" style="width: 103px; text-align: center">{{item.content}}</li>
               </ul>
             </div>
 					</li>
@@ -112,12 +112,14 @@ export default {
 				{sortType:'asc',conditionType:'totalAmount',content:'交易数量升序'},
 			],
       relationSortItems:[
-        {sortType:'desc',conditionType:'createTime',content:'任务时间降序'},
-        {sortType:'asc',conditionType:'createTime',content:'任务时间升序'},
+        {sortType:'desc',conditionType:'taskTime',content:'任务时间降序'},
+        {sortType:'asc',conditionType:'taskTime',content:'任务时间升序'},
       ],
       relationState:[
-        {sortType:'desc',conditionType:'createTime',content:'正在分析'},
-        {sortType:'asc',conditionType:'createTime',content:'分析完成'},
+        {sortType:'desc',conditionType:'states',content:'全部',state:''},
+        {sortType:'desc',conditionType:'states',content:'未完成',state:0},
+        {sortType:'desc',conditionType:'states',content:'正在分析',state:2},
+        {sortType:'desc',conditionType:'states',content:'已完成',state:1},
       ]
     }
   },
@@ -161,6 +163,10 @@ export default {
       this.isSearchSelect=index;
 			this.$emit('searchClick',this.input2)
 		},
+    filterClick(index,state){
+      this.isSearchSelect=index;
+      this.$emit('filterClick',state)
+    },
 		sortChangeItem(orderType,desc,index){
 			this.isActive = index
 			this.$emit('sortItem',orderType,desc)

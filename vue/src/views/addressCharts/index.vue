@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="loading" class="loading"><img src="../../assets/img/loading.gif" alt="loading-img"></div>
-    <PageHeader title-content="地址分析" main-content="可该地址进行深度分析，获取其与其他地址、对象直接的关联"></PageHeader>
+    <PageHeader title-content="地址分析" main-content="对该地址进行深度分析，获取其与其他地址、对象直接的关联"></PageHeader>
     <div class="panel panel-deepGray">
       <div class="panel-body">
         <!--基本信息begin-->
@@ -13,19 +13,19 @@
           <div class="col-md-8 f-bold">
             <div class="margin-b-5">
               <span class="color1">分析详情：</span>
-              <span>{{data.address}}</span>
+              <span>地址 : {{pageData.address}}</span>
             </div>
             <div class="margin-b-5">
               <span class="color1">任务状态：</span>
-              <span>{{data.sourcefrom | sourceFilter}}</span>
+              <span>{{analysisData.state | taskStatusFilter}}</span>
             </div>
             <div class="margin-b-5">
               <span class="color1">创建时间：</span>
-              <span>{{data.addtime}}</span>
+              <span>{{pageData.addtime}}</span>
             </div>
             <div class="margin-b-5">
               <span class="color1">分析结果：</span>
-              <span>{{data.remark}}</span>
+              <span>{{pageData.remark}}</span>
             </div>
           </div>
         </div>
@@ -34,27 +34,27 @@
         <div class="row" >
           <div class="col-md-2 text-center">
             <label class="color4">交易次数</label><br />
-            <span class="color1 f-bold">{{data.txtotal}}次</span>
+            <span class="color1 f-bold">{{pageData.txtotal}}次</span>
           </div>
           <div class="col-md-2 text-center">
             <label class="color4">转入次数</label><br />
-            <span class="color1 f-bold">{{data.txintotal | nullFilter}}次<span>（{{data.txInPer}}%)</span></span>
+            <span class="color1 f-bold">{{pageData.txintotal | nullFilter}}次<span>（{{pageData.txInPer}}%)</span></span>
           </div>
           <div class="col-md-2 text-center">
             <label class="color4">转出次数</label><br />
-            <span class="color1 f-bold">{{data.txouttotal | nullFilter}}次（{{data.txOutInPer}}%）</span>
+            <span class="color1 f-bold">{{pageData.txouttotal | nullFilter}}次（{{pageData.txOutInPer}}%）</span>
           </div>
           <div class="col-md-2 text-center">
             <label class="color4">最终余额</label><br />
-            <span class="color1 f-bold">{{data.balance | feeFilter}} BTC</span>
+            <span class="color1 f-bold">{{pageData.balance | feeFilter}} BTC</span>
           </div>
           <div class="col-md-2 text-center">
             <label class="color4">关联地址<small>(同一拥有者)</small></label><br />
-            <span class="color1 f-bold">{{data.sametargettotal}}个</span>
+            <span class="color1 f-bold">{{pageData.sametargettotal}}个</span>
           </div>
           <div class="col-md-2 text-center">
             <label class="color4">交易地址</label><br />
-            <span class="color1 f-bold">{{data.txaddresstotal}}个</span>
+            <span class="color1 f-bold">{{pageData.txaddresstotal}}个</span>
           </div>
         </div>
         <!--简单统计end-->
@@ -68,64 +68,49 @@
           <div class="col-xs-0 col-md-1"></div>
         </div>
         <div class="col-xs-12 col-md-4" style="padding: 0 30px;">
-          <table v-if="selectId&&selectId!=0" class="table" style="table-layout: fixed;border-left: 1px solid #ddd ">
+          <table class="table" style="table-layout: fixed;border-left: 1px solid #ddd ">
             <tbody>
              <tr>
                <td class="col-xs-3 col-md-3"><strong><span>地址集</span></strong></td>
-               <td class="col-xs-9 col-md-9 text-muted">{{selectAddress[0]}}<a href="javascript:;" @click="openSelectAddress" style="margin-left: 10px; ">[显示全部]</a></td>
+               <td class="col-xs-9 col-md-9 text-muted">{{checkData.addresses?checkData.addresses[0]:''}}<a href="javascript:;" @click="openSelectAddress" style="margin-left: 10px; ">[显示全部]</a></td>
              </tr>
              <tr class="">
                <td class="col-xs-3 col-md-3"><strong><span>拥有者</span></strong></td>
-               <td class="col-xs-9 col-md-9 text-muted">0.00001690265486725664 BTC per kB</td>
+               <td class="col-xs-9 col-md-9 text-muted">{{checkData.tag=='未知'?checkData.targetName:checkData.tag}}</td>
              </tr>
+        <!--     <tr class="">
+               <td class="col-xs-3 col-md-3"><strong><span>标签</span></strong></td>
+               <td class="col-xs-9 col-md-9 text-muted">{{checkData.tag}}</td>
+             </tr>-->
              <tr>
                <td class="col-xs-3 col-md-3"><strong><span>交易次数</span></strong></td>
-               <td class="col-xs-9 col-md-9 text-muted">Oct 14, 2017 10:22:28 AM</td>
+               <td class="col-xs-9 col-md-9 text-muted">{{checkData.txTimes}}次</td>
              </tr>
              <tr>
                <td class="col-xs-3 col-md-3"><strong><span>交易地址</span></strong></td>
-               <td class="col-xs-9 col-md-9 text-muted">undefined NaN, NaN NaN:NaN:NaN PM</td>
+               <td class="col-xs-9 col-md-9 text-muted">{{checkData.addresses?checkData.addresses.length:0}}个</td>
              </tr>
              <tr>
                <td class="col-xs-3 col-md-3"><strong><span>最终余额</span></strong></td>
-               <td class="col-xs-9 col-md-9 text-muted">Unconfirmed</td>
+               <td class="col-xs-9 col-md-9 text-muted">{{checkData.txTotalAmount | feeFilter}} BTC</td>
              </tr>
              <tr>
                <td colspan="2" class="col-xs-12 col-md-12">
                  <a class="btn btn-default" href="javascript:;"
                     @click="openSelectAddress"><small>地址详情</small>
                  </a>
-                 <a class="btn btn-default" href="javascript:;"
-                    @click="openSelectAddress" style="margin-left: 10px"><small>手动扩线</small>
+                 <a class="btn btn-default" href="javascript:;" v-if="canAdd"
+                    @click="addData" style="margin-left: 10px"><small>手动扩线</small>
                  </a>
                </td>
              </tr>
-               <!-- <tr>
-                  <td colspan="2"><strong><span>地址集:</span></strong></td>
-                </tr>
-                <tr v-for="address in selectAddress">
-                  <td class="text-muted text-right" colspan="2" style="text-align: left">
-                    <label>
-                      <input type="radio" name="inlineRadioOptions" id="" :value="address" v-model="checkAddress" style="float: left"/>
-                      <p style="position: relative; line-height: 34px; display: inline-block; float: left; margin: 4px">{{address}}</p>
-                    </label>
-
-                  </td>
-                </tr>
-                <tr>
-                  <td colspan="2" style="text-align:center;"><a class="btn btn-primary add_circle" href="javascript:;"
-                                                                id="open_more" @click="addData">
-                    <small>点击扩线</small>
-                  </a></td>
-                </tr>-->
             </tbody>
           </table>
         </div>
       </div>
     </div>
-
     <Panelwrap title='涉及地址'
-               v-on:searchClick='searchAddress2'
+               v-on:searchClick='searchAddress'
                placeholder='请输入地址'
     >
       <div class="panel-body table-responsive">
@@ -154,9 +139,8 @@
             <td>
               <a class="txid color4" href="javascript:void(0)">{{item.targetName}}</a>
             </td>
-            <td>{{item.txTimes}}</td>
-            <td><a class="btn btn-default" href="javascript:;"
-                   @click="addData"><small>查看详情</small></a></td>
+            <td>{{tradeState | taskStatusFilter}}</td>
+            <td><router-link class="btn btn-default"  :to = "{ name: 'addressdetails',query:{ address: item.addresses[0] }}"><small>查看详情</small></router-link></td>
           </tr>
           </tbody>
         </table>
@@ -171,7 +155,7 @@
     </Panelwrap>
 
     <!--地址集选择列表begin-->
-    <selectAddress id="myModalE"></selectAddress>
+    <selectAddress v-if="checkData.addresses" id="myModalE" :selectAddress="checkData.addresses"  @addData="addData"></selectAddress>
   </div>
 </template>
 <script>
@@ -182,32 +166,10 @@
     data(){
       /*1是终点，2是起点，3是过渡*/
       return {
-        nodesData: [
-          {id: '1', group: 'type_3', title: '7ae143cebb52930eda31ee26419708bedd8d3c66f9fd7a8e06862df576ee937e'},
-          {id: '2', group: 'type_2', title: '7ae143cebb52930eda31ee26419708bedd8d3c66f9fd7a8e06862df576ee937e'},
-          {id: '3', group: 'type_3', title: '7ae143cebb52930eda31ee26419708bedd8d3c66f9fd7a8e06862df576ee937e'},
-          {id: '4', group: 'type_3', title: '7ae143cebb52930eda31ee26419708bedd8d3c66f9fd7a8e06862df576ee937e'},
-          {id: '5', group: 'type_3', title: '7ae143cebb52930eda31ee26419708bedd8d3c66f9fd7a8e06862df576ee937e'},
-          {id: '9', group: 'type_1', title: '7ae143cebb52930eda31ee26419708bedd8d3c66f9fd7a8e06862df576ee937e'},
-          {id: '10', group: 'type_1', title: '7ae143cebb52930eda31ee26419708bedd8d3c66f9fd7a8e06862df576ee937e'}
-        ],
-        nodesDataAdd: [
-          {id: '6', group: 'type_3', title: '7ae143cebb52930eda31ee26419708bedd8d3c66f9fd7a8e06862df576ee937e'},
-          {id: '7', group: 'type_1', title: '7ae143cebb52930eda31ee26419708bedd8d3c66f9fd7a8e06862df576ee937e'},
-          {id: '8', group: 'type_1', title: '7ae143cebb52930eda31ee26419708bedd8d3c66f9fd7a8e06862df576ee937e'}],
-        edgesData: [
-          {from: '1', to: '3'},
-          {from: '1', to: '2'},
-          {from: '2', to: '4'},
-          {from: '2', to: '5'},
-          {from: '4', to: '9'},
-          {from: '5', to: '10'}
-        ],
-        edgesDataAdd: [
-          {from: '3', to: '6'},
-          {from: '6', to: '7'},
-          {from: '6', to: '8'}
-        ],
+        nodesData: [],
+        nodesDataAdd: [],
+        edgesData: [],
+        edgesDataAdd: [],
         /*选中的id*/
         selectId: '',
         hasCheckAddress:{},
@@ -215,177 +177,101 @@
         selectAddress: [],
         /*列表选中的地址*/
         checkAddress: "",
+        checkData:{
+          addresses:[]
+        },
         data: {},
+        pageData:{},
+        analysisData:{},
         canAdd: true,
         loading: false,
         defaultAddress:'',
         relationAddress:{},
-        tradeAdd:"",
-        showNodes:'',
-        testData: {
-          "data": {
-            "150_未知_0": {
-              "targetName": "未知",
-              "addresses": ["1F6HRKBprGRrDKxHcmF41WZraQ9bmSasnx"],
-              "txTotalAmount": "1.19000000",
-              "txtargetAddressMap": {},
-              "targetId": 0,
-              "txTimes": 10,
-              "_key": "8159476"
-            },
-            "178_未知_1": {
-              "targetName": "未知",
-              "addresses": ["1A3oc7bZGrGfRKhf6gWiNnWWQwhwHX2X8e", "18f4py3HfS5kLgpfzRej15xcHTZ97TgKd3", "1B4CHXhATbW1p1SajHT1BMp4NpDw4tXuVX", "1Jku8UJ7CwNzLmSawA6rYcDrKV3cErekoj", "163c6YtwNbfVSyVvMQCBcmNX9RdYQdRqqa", "163c6YtwNbfVSyVvMQCBcmNX9RdYQdRqqa", "17cZtkDxdRkyywsNaPhbsexP9kAerUGeiq"],
-              "txTotalAmount": "3.57000000",
-              "txtargetAddressMap": {
-                "278_Gribble IRC Bot_1": {
-                  "targetName": "未知",
-                  "addresses": ["1MgD6rah5zUgEGYZnNmdpnXMaDR3itKYzU"],
-                  "txTotalAmount": "3.57000000",
-                  "txtargetAddressMap": null,
-                  "targetId": 0,
-                  "txTimes": 1,
-                  "_key": "8278386"
-                }
-              },
-              "targetId": 0,
-              "txTimes": 10,
-              "_key": "8278386"
-            },
-            "101_未知_0": {
-              "targetName": "未知",
-              "addresses": ["15MyyUgJLebaoJrPPsr9DTmEDDENZdKG2E"],
-              "txTotalAmount": "1.95000000",
-              "txtargetAddressMap": {},
-              "targetId": 0,
-              "txTimes": 10,
-              "_key": "8308989"
-            },
-            "183_未知_1": {
-              "targetName": "未知",
-              "addresses": ["17196vCY2Sg9i99Ueuuj55toxePnatNtft"],
-              "txTotalAmount": "360.00000000",
-              "txtargetAddressMap": {
-                "283_Bitcoin-otc Donations_1": {
-                  "targetName": "未知",
-                  "addresses": ["12o8Qy2CeMfCWEfRTH3yFgLqcjCE5AznBr", "1MgD6rah5zUgEGYZnNmdpnXMaDR3itKYzU", "1Ex9Lvka7pjNbctgn2r1BACkfuTAFSanzx", "18E2w5XrjvqPvwe3V3F95ysweZ3HnPDxjx", "1MgD6rah5zUgEGYZnNmdpnXMaDR3itKYzU", "1MgD6rah5zUgEGYZnNmdpnXMaDR3itKYzU", "1F1dPZxdxVVigpGdsafnZ3cFBdMGDADFDe", "1F1dPZxdxVVigpGdsafnZ3cFBdMGDADFDe"],
-                  "txTotalAmount": "360.00000000",
-                  "txtargetAddressMap": null,
-                  "targetId": 0,
-                  "txTimes": 2,
-                  "_key": "8713592"
-                }
-              },
-              "targetId": 0,
-              "txTimes": 10,
-              "_key": "8713592"
-            },
-            "142_未知_1": {
-              "targetName": "未知",
-              "addresses": ["1KDuHZgqfq272wznvQNgbtNk31Fc1SLtK1"],
-              "txTotalAmount": "25.00000000",
-              "txtargetAddressMap": {
-                "242_Bitcoin-otc Donations_1": {
-                  "targetName": "未知",
-                  "addresses": ["18RV21kra3h5wycwKvxFAePnV1z7kav8ui", "1F1dPZxdxVVigpGdsafnZ3cFBdMGDADFDe", "1MgD6rah5zUgEGYZnNmdpnXMaDR3itKYzU", "1MgD6rah5zUgEGYZnNmdpnXMaDR3itKYzU", "1F1dPZxdxVVigpGdsafnZ3cFBdMGDADFDe", "1F1dPZxdxVVigpGdsafnZ3cFBdMGDADFDe", "18itX6b1wiu5UPdFAJSkyTuw5bxataGQw9"],
-                  "txTotalAmount": "25.00000000",
-                  "txtargetAddressMap": null,
-                  "targetId": 0,
-                  "txTimes": 2,
-                  "_key": "8351615"
-                }
-              },
-              "targetId": 0,
-              "txTimes": 10,
-              "_key": "8351615"
-            }
-          }, "success": true, "message": "查询成功"
-        },
-        testAddData: {
-          "data": {
-            "164_未知_0": {
-              "targetName": "未知",
-              "addresses": ["1C8JWPp2YSM2CEDVtr5YxUq9wFYcvT2aEB", "1L7wRZFBrWGFfuv7rkd6yNv61uRUnyB6Mn"],
-              "txTotalAmount": "11.19000000",
-              "txtargetAddressMap": {},
-              "targetId": 0,
-              "txTimes": 2,
-              "_key": "8087209"
-            },
-            "171_未知_0": {
-              "targetName": "未知",
-              "addresses": ["1MgD6rah5zUgEGYZnNmdpnXMaDR3itKYzU", "1K8gfxxh83XTv5qftL5MmkTSjvSQnToBsS"],
-              "txTotalAmount": "1.19000000",
-              "txtargetAddressMap": {},
-              "targetId": 0,
-              "txTimes": 2,
-              "_key": "8159476"
-            }
-          }, "success": true, "message": "查询成功"
-        }
+        tradeAdd:{},
+        tradeState:'',
+        showNodes:[],
+        analysisId:"",
       }
     },
     methods: {
-      getData(address, isInit)
+      getData(analysisId,isInit)
       {
         this.loading = true;
         var params={};
         if (isInit) {
-          if(address){
-            params = {address: address};
-          }else{
-            params = {address: "15gghAxQ3WckS5ei4Q4dAJDKT3K21cVTYZ"};
-          }
-          //this.initData(this.testData.data);
-          this.$http.post('/api/view/address', params)
+          this.$http.get('/api/view/detail/'+analysisId)
             .then(res =>{
             this.loading = false;
-            this.initData(res.data.data,address)}).catch(err =>{
+              this.pageData=res.data.data.data;
+              this.analysisData=res.data.data.analysis;
+              this.analysisData.resdata=this.strToJson(res.data.data.analysis.resdata);
+              this.initData(this.analysisData.resdata,this.pageData.address)
+            }).
+          catch(err =>{
+            this.$message({
+              message: '数据返回异常，请尝试刷新或者重新登录',
+              type: 'warning',
+            })
             this.loading = false;
           })
         } else {
-          params = {address: this.checkAddress};
-          //this.updateData(this.testAddData.data);
+          params = {address: this.checkData.addresses.join(',')};
           this.$http.post('/api/view/address', params)
             .then(res =>{
             this.loading = false;
             this.updateData(res.data.data)}).catch(err =>{
+            this.$message({
+              message: '数据返回异常，请尝试刷新或者重新登录',
+              type: 'warning',
+            })
             this.loading = false;
           })
         }
       },
-      initData(data,address)
+      initData(data)
       {
         /*生成一级起始点*/
+        var beginData={
+          addresses:data.addresses,
+          txTimes:data.txTimes,
+          txTotalAmount:data.txTotalAmount,
+          targetName:data.targetName,
+          tag:data.tag
+        };
         this.nodesData = [{
-          id: '0',
+          id: data.unique,
           group: 'type_2',
           title: '0',
-          addresses:[address]
+          data:beginData
         }];
+        console.log(beginData.addresses)
+        this.checkData=beginData;
         this.edgesData = [];
-        this.hasExpandId={};
-
-        for (var obj in data) {
-          var toId = this.addNode("0", obj, data[obj].addresses);
-          var oneAddress = data[obj].txtargetAddressMap;
-          for (var thirdAddressObj in oneAddress) {
-            this.addNode(toId, thirdAddressObj, oneAddress[thirdAddressObj].addresses);
+        if(data.txtargetAddList){
+          for (var i=0;i<data.txtargetAddList.length; i++) {
+            var toId = this.addNode(data.unique, data.txtargetAddList[i].unique, data.txtargetAddList[i]);
+            var oneAddress = data.txtargetAddList[i].txtargetAddList;
+            if(oneAddress){
+              for (var j=0;j<oneAddress.length; j++) {
+                this.addNode(toId, oneAddress[j].unique,oneAddress[j]);
+              }
+            }
           }
         }
         this.initVis();
       },
       updateData(data){
         /*当前地址已经查询过*/
-        //this.hasCheckAddress[this.checkAddress]=true;
-
-        for (var obj in data) {
-          var toId = this.addNode(this.selectId, obj, data[obj].addresses);
-          var oneAddress = data[obj].txtargetAddressMap;
-          for (var thirdAddressObj in oneAddress) {
-            this.addNode(toId, thirdAddressObj, oneAddress[thirdAddressObj].addresses);
+        for (var i=0;i<data.length; i++) {
+          var toId = this.addNode(this.selectId, data[i].unique, data[i]);
+          var oneAddress = data[i].txtargetAddList;
+          if(oneAddress){
+            for (var j=0;j<oneAddress.length; j++) {
+              this.addNode(toId, oneAddress[j].unique,oneAddress[j]);
+            }
           }
         }
+        console.log(this.edgesData)
         //更新关系图
         this.nodes.update(this.nodesData);
         this.edges.update(this.edgesData);
@@ -399,122 +285,13 @@
       },
       initVis()
       {
-        // this.getData();
         var nodes = new vis.DataSet(this.nodesData);
         var edges = new vis.DataSet(this.edgesData);
         this.data = {
           nodes: nodes,
           edges: edges
         };
-
-        var options = {
-          configure: {
-            enabled: false,
-            filter: 'nodes,edges',
-            showButton: true
-          },
-          interaction: {
-            hover: true
-          },
-          groups: {
-            type_1: {
-              color: {
-                border: '#e4afa9',
-                background: '#ef4836',
-                highlight: {
-                  border: '#fccf7e',
-                  background: '#FFA500'
-                },
-                hover: {
-                  border: '#fccf7e',
-                  background: '#FFA500'
-                }
-              }
-            },
-
-            type_2: {
-              color: {
-                border: '#98cafc',
-                background: '#399bff',
-                highlight: {
-                  border: '#fccf7e',
-                  background: '#FFA500'
-                },
-                hover: {
-                  border: '#fccf7e',
-                  background: '#FFA500'
-                }
-              }
-            },
-
-            type_3: {
-              color: {
-                border: '#dbedff',
-                background: '#81bfff',
-                highlight: {
-                  border: '#fccf7e',
-                  background: '#FFA500'
-                },
-                hover: {
-                  border: '#fccf7e',
-                  background: '#FFA500'
-                }
-              },
-              size: 10
-            }
-
-          },
-          autoResize: true,
-          edges: {
-            color: {
-              color: '#D9D9D9',
-              highlight: '#D9D9D9',
-              hover: '#D9D9D9',
-              opacity: 1.0
-            },
-            arrows: {from : true }
-          },
-          layout: {
-            randomSeed: 2,//配置每次生成的节点位置都一样，参数为数字1、2等
-            hierarchical: {
-              direction: 'LR'//UD:上下 DU:下上 LR:左右 RL:右左
-            }, //层级结构显示}
-          },
-          nodes: {
-            color: {
-              border: '#EC5148',
-              background: '#EC5148',
-              highlight: {
-                border: '#FF8203',
-                background: '#FF8203'
-              },
-              hover: {
-                border: '#EC5148',
-                background: '#EC5148'
-              }
-            },
-            borderWidth: 3,
-            chosen: true,
-            font: {
-              color: '#000',
-              face: 'Microsoft YaHei',
-              size: 8
-            },
-            fixed: {
-              x: false,
-              y: false
-            },
-            shape: 'dot',
-            size: 15,
-            physics: false,     // 将节点移出物理模拟
-            scaling: {
-              min: 15,
-              max: 15
-            }
-
-          }
-        };
-
+        var options =this.$store.state.vis;
         var container = document.getElementById('container_visjs');
         var network = new vis.Network(container, this.data, options);
         network.setOptions(options);
@@ -522,11 +299,9 @@
         network.on("selectNode", function (params) {//单击事件
           if (params.nodes.length > 0) {
             //点击的时候获取点的ID
-            var nodesId_ = params.nodes[0];
-            // var nodesData_ = this.nodesData;
             _this.selectId = params.nodes[0];
-            _this.selectAddress = _this.getAddress(params.nodes[0]);
-            _this.checkAddress =_this.selectAddress[0];
+            _this.checkData= _this.getCheckData(params.nodes[0])
+            _this.selectAddress=_this.checkData.address;
           }
         });
 
@@ -535,42 +310,34 @@
         this.options = options;
         this.network = network;
       },
-      addNode(fromId, obj, addresses){
-        var infoArray = obj.split("_");
-        var type = infoArray[1] == "未知" ? "type_3" : "type_1";
+      addNode(fromId, obj,data){
+        var type = data.isFind ? "type_1" : "type_3";
         if (type == "type_1") {
           this.canAdd = false;
         }
-        this.edgesData.push({from: infoArray[0], to:fromId });
+        this.edgesData.push({from: data.unique, to:fromId });
         for(var i=0;i<this.nodesData.length;i++){
           /*是否记录过当前的点*/
-          if(this.nodesData[i].id==infoArray[0])
+          if(this.nodesData[i].id==data.unique)
             return
         }
         this.nodesData.push({
-          id: infoArray[0],
+          id: data.unique,
           group: type,
-          title: infoArray[0],
-          addresses: addresses
+          title: data.unique,
+          data:data
         });
-        return infoArray[0];
+        return data.unique;
       },
-      getAddress(id){
+      getCheckData(id){
         for (var i = 0; i < this.nodesData.length; i++) {
           if (this.nodesData[i].id == id) {
-            return this.nodesData[i].addresses;
+            return this.nodesData[i].data;
           }
         }
       },
-      addData(){
-        /*是否找到终点了*/
-        if (!this.canAdd) {
-          return;
-        }
-
-        if(this.checkAddress&&!this.hasCheckAddress[this.checkAddress]){
-          this.getData();
-        }
+      delAddress(){
+        return this.$http.post('/api/view/delete/'+this.analysisId)
       },
       delConfirm(){
         this.$confirm('是否删除该报告?', '提示', {
@@ -592,7 +359,7 @@
               message:res.data.message
             })
             setTimeout(()=>{
-              this.$router.push('/address')
+              this.$router.push('/relation')
           },2000)
           }else{
             instance.confirmButtonLoading = false;
@@ -606,78 +373,63 @@
       }
       })
       },
-      searchAddress2(){},
+      searchAddress(value){
+        this.getTradeAddress({address:value})
+        this.defaultPage1 = 1
+      },
       handleTradeAddChange(value){
-        this.getTradeAdd({pageNumber:value})
+        this.getTradeAddress({pageNumber:value})
       },
-      getTrade(params){
-        let defaultData = {'address': this.$route.query.address}
+      getTradeAddress(params){
+        let defaultData = {'analysis_id': this.$route.query.analysisId};
         let data = Object.assign (defaultData, params)
         this.loading = true
-        this.$http.post(`/api/address/txrecords`,data)
+        this.$http.post(`/api/view/reportAddress`,data)
           .then(res => {
-          if (res.data.success) {
-          this.trade = res.data.data
-          this.loading = false
-          if (this.trade.list.length == 0) {
+            if (res.data.success) {
+              this.tradeAdd = res.data.data.page;
+              this.tradeState=res.data.data.state;
+              this.loading = false
+              if (this.tradeAdd.list.length==0) {
+                this.$message({
+                  message: '暂无记录',
+                  type: 'warning',
+                })
+              }else{
+                this.showNodes = new Array(this.tradeAdd.list.length).fill(0)
+              }
+            }
+          })
+          .catch(err =>{
+            this.loading = false
             this.$message({
-              message: '暂无记录',
+              message: '数据返回异常，请尝试刷新或者重新登录',
               type: 'warning',
             })
-          }
-        }
-      })
-      .catch(err =>{
-          if (err) {
-            this.$message({
-              message: '登录失效,请重新登录',
-              type: 'warning',
-            })
-            setTimeout(()=>{this.$router.push('/loginpage')},3000)
-          }
-        })
+          })
       },
-      getTradeAdd(params){
-        let defaultData = {'address': this.$route.query.address}
-        // let defaultData = {'address': '13zy8e4kk8vJzBepuxEoBzEmS1KAQtbKPQ'}
-        let data = Object.assign (defaultData, params)
-        this.loading = true
-        this.$http.post(`/api/address/txtarget`,data)
-          .then(res => {
-          if (res.data.success) {
-          this.tradeAdd = res.data.data
-          this.loading = false
-          this.showNodes = new Array(this.tradeAdd.list.length).fill(0)
-          if (this.tradeAdd.list.length==0) {
-            this.$message({
-              message: '暂无记录',
-              type: 'warning',
-            })
-          }
+      addData(){
+        /*是否找到终点了*/
+        if (!this.canAdd) {
+          //return;
         }
-      })
-      .catch(err =>{
-          if (err) {
-            this.$message({
-              message: '登录失效,请重新登录',
-              type: 'warning',
-            })
-            setTimeout(()=>{this.$router.push('/loginpage')},3000)
-          }
-        })
+        this.getData();
       },
       openSelectAddress(){
         $("#myModalE").modal("show")
       },
       initialize(){
-        let address = this.$route.query.address
-        this.$http.all([this.getData(address, true),this.getTrade(address),this.getTradeAdd(address)])
+        let analysisId = this.$route.query.analysisId;
+        this.analysisId=analysisId;
+        this.$http.all([this.getData(analysisId, true),this.getTradeAddress()])
       },
-    },
+      strToJson(str){
+        var json = (new Function("return " + str))();
+        return json;
+      }
+  },
     mounted()
     {
-     // let address = this.$route.query.address
-      //this.getData(address, true);
       this.initialize();
     },
     components: {

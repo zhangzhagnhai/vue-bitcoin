@@ -2,106 +2,138 @@
   <div>
     <div v-if="loading" class="loading"><img src="../../assets/img/loading.gif" alt="loading-img"></div>
 
-    <MainHeader title='关联分析' sub-title='可管理对象，包括新增对象、编辑对象和删除对象' btn-title='添加新对象'></MainHeader>
+    <PageHeader title-content="对象分析" main-content="包括基本信息、交易记录、已知拥有地址、关联对象等信息。"></PageHeader>
 
-    <div class="container" style="margin-top:50px">
-      <div class="row">
-        <div class="col-xs-12 col-md-8">
-          <div ref="container_visjs" id="container_visjs"></div>
+    <div class="panel panel-deepGray">
+      <div class="panel-body">
+        <!--基本信息begin-->
+        <h2 class="margin-t-0">
+          分析报告
+          &nbsp;<a href="javascript:void(0)" @click='delConfirm' class="f-size-18" data-toggle="tooltip"
+                   data-placement="top" title="" data-original-title="删除报告"><i class="fa fa-trash-o"></i></a>
+        </h2>
+        <div class="addressBasic row border-b-color">
+          <div class="col-md-8 f-bold">
+            <div class="margin-b-5">
+              <span class="color1">分析详情：</span>
+              <span>对象 : {{analysisData.title}}</span>
+            </div>
+            <div class="margin-b-5">
+              <span class="color1">任务状态：</span>
+              <span>{{analysisData.state | taskStatusFilter}}</span>
+            </div>
+            <div class="margin-b-5">
+              <span class="color1">创建时间：</span>
+              <span>{{pageData.addTime
+                }}</span>
+            </div>
+            <div class="margin-b-5">
+              <span class="color1">分析结果：</span>
+              <span>{{pageData.remark}}</span>
+            </div>
+          </div>
         </div>
-        <div class="col-xs-12 col-md-4 col-gray">
-          <table v-if="selectId&&selectId!=0" class="table" style="table-layout: fixed">
-            <tbody>
-            <!-- <tr>
-               <td><strong><span>Size</span></strong></td>
-               <td class="text-muted text-right">226 (bytes)</td>
-             </tr>21.53 21.34
-             <tr class="">
-               <td><strong><span>Fee Rate</span></strong></td>
-               <td class="text-muted text-right">0.00001690265486725664 BTC per kB</td>
-             </tr>
-             <tr>
-               <td><strong><span>Received Time</span></strong></td>
-               <td class="text-muted text-right">Oct 14, 2017 10:22:28 AM</td>
-             </tr>
-             <tr>
-               <td><strong><span>Mined Time</span></strong></td>
-               <td class="text-muted text-right">undefined NaN, NaN NaN:NaN:NaN PM</td>
-             </tr>
-             <tr>
-               <td><strong><span>Included in Block</span></strong></td>
-               <td class="text-muted text-right">Unconfirmed</td>
-             </tr>
-             <tr>
-               <td><strong>LockTime</strong></td>
-               <td class="text-muted text-right">0</td>
-             </tr>
-             <tr>
-               <td><strong>Coinbase</strong></td>
-               <td class="text-muted text-right">
-                 <div class="ellipsis"><span></span></div>
-               </td>
-             </tr>-->
-            <tr>
-              <td colspan="2"><strong><span>地址集:</span></strong></td>
-              <!-- <td class="text-muted text-right">{{address}}</td>-->
-            </tr>
-            <tr v-for="address in selectAddress">
-              <td class="text-muted text-right" colspan="2" style="text-align: left">
-                <label>
-                  <input type="radio" name="inlineRadioOptions" id="" :value="address" v-model="checkAddress"
-                         style="float: left"/>
-                  <p style="position: relative; line-height: 34px; display: inline-block; float: left; margin: 4px">
-                    {{address}}</p>
-                </label>
+        <!--基本信息end-->
+        <!--简单统计begin-->
+        <div class="row">
+          <div class="col-md-2 text-center">
+            <label class="color4">交易次数</label><br/>
+            <span class="color1 f-bold">{{pageData.txTotal}}次</span>
+          </div>
+          <div class="col-md-2 text-center">
+            <label class="color4">转入次数</label><br/>
+            <span class="color1 f-bold">{{pageData.txIntotal | nullFilter}}次<span>（{{pageData.txInPer}}%)</span></span>
+          </div>
+          <div class="col-md-2 text-center">
+            <label class="color4">转出次数</label><br/>
+            <span class="color1 f-bold">{{pageData.txOutTotal | nullFilter}}次（{{pageData.txOutInPer}}%）</span>
+          </div>
+          <div class="col-md-2 text-center">
+            <label class="color4">已知地址</label><br/>
+            <span class="color1 f-bold">{{pageData.addressTotal}}个</span>
+          </div>
+          <div class="col-md-2 text-center">
+            <label class="color4">已知余额</label><br/>
+            <span class="color1 f-bold">{{pageData.balance | feeFilter }} BTC</span>
+          </div>
+          <div class="col-md-2 text-center">
+            <label class="color4">关联对象</label><br/>
+            <span class="color1 f-bold">{{pageData.targetRelationTotal}}个</span>
+          </div>
+        </div>
+        <!--简单统计end-->
+      </div>
+    </div>
 
+    <div class="containers">
+      <div class="row" style="margin:0; padding: 50px 0 ;">
+        <div class="col-xs-12 col-md-8">
+          <div class="col-xs-0 col-md-1"></div>
+          <div ref="container_visjs" id="container_visjs" class="col-xs-12 col-md-10 "
+               style="padding:0; background-color: #eee"></div>
+          <div class="col-xs-0 col-md-1"></div>
+        </div>
+        <div class="col-xs-12 col-md-4" style="padding: 0 30px;">
+          <table class="table" style="table-layout: fixed;border-left: 1px solid #ddd ">
+            <tbody>
+            <tr class="">
+              <td class="col-xs-3 col-md-3"><strong><span>标签</span></strong></td>
+              <td class="col-xs-9 col-md-9 text-muted">{{checkData.tag=='未知'?checkData.targetName:checkData.tag}}</td>
+            </tr>
+            <tr v-if="checkData.addresses&&checkData.addresses.length">
+              <td class="col-xs-3 col-md-3"><strong><span>拥有地址</span></strong></td>
+              <td class="col-xs-9 col-md-9 text-muted">{{checkData.addresses?checkData.addresses[0]:''}}<a href="javascript:;"
+                                                                                    @click="openSelectAddress"
+                                                                                    style="margin-left: 10px; ">[显示全部]</a>
               </td>
             </tr>
-            <tr v-if="false">
-              <td colspan="2" style="text-align:center;"><a class="btn btn-primary add_circle" href="javascript:;"
-                                                            id="open_more" @click="addData">
-                <small>点击扩线</small>
-              </a></td>
+            <tr>
+              <td class="col-xs-3 col-md-3"><strong><span>交易次数</span></strong></td>
+              <td class="col-xs-9 col-md-9 text-muted">{{checkData.txTimes}}次</td>
+            </tr>
+            <tr>
+              <td class="col-xs-3 col-md-3"><strong><span>交易金额</span></strong></td>
+              <td class="col-xs-9 col-md-9 text-muted">{{checkData.txTotalAmount}}BTC</td>
+            </tr>
+            <tr>
+              <td class="col-xs-3 col-md-3" style=""><strong><span></span></strong></td>
+              <td class="col-xs-9 col-md-9 text-muted" style=""></td>
+            </tr>
+            <tr>
+              <td colspan="2" class="col-xs-12 col-md-12">
+                <a class="btn btn-default" href="javascript:;"
+                   @click="openSelectAddress">
+                  <small>对象详情</small>
+                </a>
+                <a class="btn btn-default" href="javascript:;" v-if="canAdd"
+                   @click="addData" style="margin-left: 10px">
+                  <small>手动扩线</small>
+                </a>
+              </td>
             </tr>
             </tbody>
           </table>
         </div>
       </div>
     </div>
+
+    <!--地址集选择列表begin-->
+    <selectAddress v-if="checkData.addresses"  id="myModalE" :selectAddress="checkData.addresses" @addData="addData" source="object"></selectAddress>
   </div>
 </template>
 <script>
-  import MainHeader from'../../components/MainHeader/'
+  import PageHeader from '../../components/PageHeader/'
+  import MainHeader from '../../components/MainHeader/'
+  import selectAddress from '../../components/selectAddress/'
+
   export default {
-    data(){
+    data() {
       /*1是终点，2是起点，3是过渡*/
       return {
-        nodesData: [
-          {id: '1', group: 'type_3', title: '7ae143cebb52930eda31ee26419708bedd8d3c66f9fd7a8e06862df576ee937e'},
-          {id: '2', group: 'type_2', title: '7ae143cebb52930eda31ee26419708bedd8d3c66f9fd7a8e06862df576ee937e'},
-          {id: '3', group: 'type_3', title: '7ae143cebb52930eda31ee26419708bedd8d3c66f9fd7a8e06862df576ee937e'},
-          {id: '4', group: 'type_3', title: '7ae143cebb52930eda31ee26419708bedd8d3c66f9fd7a8e06862df576ee937e'},
-          {id: '5', group: 'type_3', title: '7ae143cebb52930eda31ee26419708bedd8d3c66f9fd7a8e06862df576ee937e'},
-          {id: '9', group: 'type_1', title: '7ae143cebb52930eda31ee26419708bedd8d3c66f9fd7a8e06862df576ee937e'},
-          {id: '10', group: 'type_1', title: '7ae143cebb52930eda31ee26419708bedd8d3c66f9fd7a8e06862df576ee937e'}
-        ],
-        nodesDataAdd: [
-          {id: '6', group: 'type_3', title: '7ae143cebb52930eda31ee26419708bedd8d3c66f9fd7a8e06862df576ee937e'},
-          {id: '7', group: 'type_1', title: '7ae143cebb52930eda31ee26419708bedd8d3c66f9fd7a8e06862df576ee937e'},
-          {id: '8', group: 'type_1', title: '7ae143cebb52930eda31ee26419708bedd8d3c66f9fd7a8e06862df576ee937e'}],
-        edgesData: [
-          {from: '1', to: '3'},
-          {from: '1', to: '2'},
-          {from: '2', to: '4'},
-          {from: '2', to: '5'},
-          {from: '4', to: '9'},
-          {from: '5', to: '10'}
-        ],
-        edgesDataAdd: [
-          {from: '3', to: '6'},
-          {from: '6', to: '7'},
-          {from: '6', to: '8'}
-        ],
+        nodesData: [],
+        nodesDataAdd: [],
+        edgesData: [],
+        edgesDataAdd: [],
         /*选中的id*/
         selectId: '',
         hasCheckAddress: {},
@@ -109,256 +141,111 @@
         selectAddress: [],
         /*列表选中的地址*/
         checkAddress: "",
+        checkData: {
+          addresses: []
+        },
         data: {},
+        pageData: {},
+        analysisData: {},
+        canAdd: true,
         loading: false,
-        defaultAddress: '',
-        testData: {
-          "data": {
-            "1de_未知": {
-              "targetName": "未知",
-              "addresses": ["1LJtEechWYL8GXdQUvxF3CGAhHHX7qgHpd", "13zy8e4kk8vJzBepuxEoBzEmS1KAQtbKPQ"],
-              "txTotalAmount": "14.46000000",
-              "targetId": 0,
-              "txtargetAddressMap": {},
-              "txTimes": 1,
-              "_key": null
-            },
-            "1e8_未知": {
-              "targetName": "未知",
-              "addresses": ["1LvmNHMSKQ7zTGR7KebgfZbsroqsKAVsRf"],
-              "txTotalAmount": "32.41000000",
-              "targetId": 0,
-              "txtargetAddressMap": {},
-              "txTimes": 11,
-              "_key": null
-            },
-            "185_未知": {
-              "targetName": "未知",
-              "addresses": ["1LrqWruvMzp76oQ8pZZmQ68ty1SnCdZr7W"],
-              "txTotalAmount": "32.77000000",
-              "targetId": 0,
-              "txtargetAddressMap": {},
-              "txTimes": 11,
-              "_key": null
-            },
-            "1bc_未知": {
-              "targetName": "未知",
-              "addresses": ["1J3ShBAVauV2sA4xUF56VBP277pcucHTuk", "143sdiYh3MVQd746v89yA2Pyijb1uQ3WoP"],
-              "txTotalAmount": "14.46000000",
-              "targetId": 0,
-              "txtargetAddressMap": {},
-              "txTimes": 2,
-              "_key": null
-            },
-            "王五-330327198901153367": {
-              "targetName": "未知",
-              "addresses": ["1DC42aVqeQGRFVZSw9LTnqccx1xoytmxjR", "13zy8e4kk8vJzBepuxEoBzEmS1KAQtbKPQ"],
-              "txTotalAmount": "32.77000000",
-              "targetId": 0,
-              "txtargetAddressMap": null,
-              "txTimes": 2,
-              "_key": null
-            },
-            "美杜莎-330327199701183375": {
-              "targetName": "未知",
-              "addresses": ["1LJtEechWYL8GXdQUvxF3CGAhHHX7qgHpd", "1A6wk6475aSfHNsEvSsGw5cckbbh1nmAtJ"],
-              "txTotalAmount": "15.77000000",
-              "targetId": 0,
-              "txtargetAddressMap": null,
-              "txTimes": 2,
-              "_key": null
-            },
-            "1fb_未知": {
-              "targetName": "未知",
-              "addresses": ["1C5nRRFcetWGMs3Kj2cgmSYq1KNwoFPhoH"],
-              "txTotalAmount": "29.33000000",
-              "targetId": 0,
-              "txtargetAddressMap": {},
-              "txTimes": 11,
-              "_key": null
-            },
-            "14b_未知": {
-              "targetName": "未知",
-              "addresses": ["1GRTwhTKRXwuJki1Rgo7t2pm9Z6kxba1th", "12SWkYk96yZWGbqR9iv4ffvs1LnepiFGJq"],
-              "txTotalAmount": "10.00000000",
-              "targetId": 0,
-              "txtargetAddressMap": {},
-              "txTimes": 11,
-              "_key": null
-            },
-            "16a_未知": {
-              "targetName": "未知",
-              "addresses": ["13zy8e4kk8vJzBepuxEoBzEmS1KAQtbKPQ", "1GRTwhTKRXwuJki1Rgo7t2pm9Z6kxba1th"],
-              "txTotalAmount": "15.77000000",
-              "targetId": 0,
-              "txtargetAddressMap": {},
-              "txTimes": 2,
-              "_key": null
-            }
-          }, "success": true, "message": "查询成功"
-        }
+        defaultAddress: ''
       }
     },
     methods: {
-      getData(id)
-      {
-        //this.loading = true;
+      getData(analysisId, isInit) {
+        this.loading = true;
         var params = {};
-        if (id) {
-          params = {targetMessage: id};
+        if (isInit) {
+          this.$http.get('/api/view/detail/' + analysisId)
+            .then(res => {
+              this.loading = false;
+              this.pageData = res.data.data.data;
+              this.analysisData = res.data.data.analysis;
+              this.analysisData.resdata = this.strToJson(res.data.data.analysis.resdata);
+              this.initData(this.analysisData.resdata)
+            }).catch(err => {
+            this.loading=false
+            this.$message({
+              message: '数据返回异常，请尝试刷新或者重新登录',
+              type: 'warning',
+            })
+          })
         } else {
-          params = {targetMessage: 1};
+          params = {address: this.checkData.addresses.join(',')};
+          this.$http.post('/api/view/target', params)
+            .then(res => {
+              this.loading = false;
+              this.updateData(res.data.data)
+            }).catch(err => {
+            this.loading=false
+            this.$message({
+              message: '数据返回异常，请尝试刷新或者重新登录',
+              type: 'warning',
+            })
+          })
         }
-        this.initData(this.testData.data);
-        this.$http.post('/api/view/target', params)
-          .then(res =>{
-        this.loading = false;
-        this.initData(res.data.data, id)
-        }).
-          catch(err =>{
-            this.loading = false;
-        })
       },
-      initData(data, address)
-      {
+      initData(data) {
         /*生成一级起始点*/
+        var beginData = {
+          addresses:data.addresses,
+          txTimes: data.txTimes,
+          txTotalAmount: data.txTotalAmount,
+          targetName:data.targetName,
+          tag:data.tag
+        };
         this.nodesData = [{
-          id: '0',
+          id:data.unique,
           group: 'type_2',
           title: '0',
-          addresses: [address]
+          data: beginData
         }];
+        this.checkData = beginData;
         this.edgesData = [];
-        this.hasExpandId = {};
 
-        for (var obj in data) {
-          var toId = this.addNode("0", obj, data[obj].addresses);
-          var oneAddress = data[obj].txtargetAddressMap;
-          for (var thirdAddressObj in oneAddress) {
-            this.addNode(toId, thirdAddressObj, oneAddress[thirdAddressObj].addresses);
+        console.log(data)
+        for (var i = 0; i < data.txtargetAddList.length; i++) {
+          var toId = this.addNode(data.unique, data.txtargetAddList[i].unique, data.txtargetAddList[i]);
+          var oneAddress = data.txtargetAddList[i].txtargetAddList;
+          if(oneAddress){
+            for (var j = 0; j < oneAddress.length; j++) {
+              this.addNode(toId, oneAddress[j].unique, oneAddress[j]);
+            }
           }
         }
-
-        this.initialize();
+        this.initVis();
       },
-      initialize()
-      {
-        // this.getData();
+      updateData(data){
+        /*当前地址已经查询过*/
+        for (var i=0;i<data.length; i++) {
+          var toId = this.addNode(this.selectId, data[i].unique, data[i]);
+          var oneAddress = data[i].txtargetAddList;
+          if(oneAddress){
+            for (var j=0;j<oneAddress.length; j++) {
+              this.addNode(toId, oneAddress[j].unique,oneAddress[j]);
+            }
+          }
+        }
+        //更新关系图
+        this.nodes.update(this.nodesData);
+        this.edges.update(this.edgesData);
+        this.data = {
+          nodes: this.nodes,
+          edges: this.edges
+        };
+        //network.setData(data);
+        //重置设置
+        this.network.setOptions(this.options);
+      },
+      initVis() {
         var nodes = new vis.DataSet(this.nodesData);
         var edges = new vis.DataSet(this.edgesData);
         this.data = {
           nodes: nodes,
           edges: edges
         };
-
-        var options = {
-          configure: {
-            enabled: false,
-            filter: 'nodes,edges',
-            showButton: true
-          },
-          interaction: {
-            hover: true
-          },
-          groups: {
-            type_1: {
-              color: {
-                border: '#e4afa9',
-                background: '#ef4836',
-                highlight: {
-                  border: '#fccf7e',
-                  background: '#FFA500'
-                },
-                hover: {
-                  border: '#fccf7e',
-                  background: '#FFA500'
-                }
-              }
-            },
-
-            type_2: {
-              color: {
-                border: '#98cafc',
-                background: '#399bff',
-                highlight: {
-                  border: '#fccf7e',
-                  background: '#FFA500'
-                },
-                hover: {
-                  border: '#fccf7e',
-                  background: '#FFA500'
-                }
-              }
-            },
-
-            type_3: {
-              color: {
-                border: '#dbedff',
-                background: '#81bfff',
-                highlight: {
-                  border: '#fccf7e',
-                  background: '#FFA500'
-                },
-                hover: {
-                  border: '#fccf7e',
-                  background: '#FFA500'
-                }
-              },
-              size: 10
-            }
-
-          },
-          autoResize: true,
-          edges: {
-            color: {
-              color: '#D9D9D9',
-              highlight: '#D9D9D9',
-              hover: '#D9D9D9',
-              opacity: 1.0
-            },
-            arrows: {from : true }
-          },
-          layout: {
-            randomSeed: 2,//配置每次生成的节点位置都一样，参数为数字1、2等
-            hierarchical: {
-              direction: 'LR'//UD:上下 DU:下上 LR:左右 RL:右左
-            }, //层级结构显示}
-          },
-          nodes: {
-            color: {
-              border: '#EC5148',
-              background: '#EC5148',
-              highlight: {
-                border: '#FF8203',
-                background: '#FF8203'
-              },
-              hover: {
-                border: '#EC5148',
-                background: '#EC5148'
-              }
-            },
-            borderWidth: 3,
-            chosen: true,
-            font: {
-              color: '#000',
-              face: 'Microsoft YaHei',
-              size: 8
-            },
-            fixed: {
-              x: false,
-              y: false
-            },
-            shape: 'dot',
-            size: 15,
-            physics: false,     // 将节点移出物理模拟
-            scaling: {
-              min: 15,
-              max: 15
-            }
-
-          }
-        };
-
+        var options = this.$store.state.vis;
         var container = document.getElementById('container_visjs');
         var network = new vis.Network(container, this.data, options);
         network.setOptions(options);
@@ -366,11 +253,9 @@
         network.on("selectNode", function (params) {//单击事件
           if (params.nodes.length > 0) {
             //点击的时候获取点的ID
-            var nodesId_ = params.nodes[0];
-            // var nodesData_ = this.nodesData;
             _this.selectId = params.nodes[0];
-            _this.selectAddress = _this.getAddress(params.nodes[0]);
-            _this.checkAddress = _this.selectAddress[0];
+            _this.checkData = _this.getCheckData(params.nodes[0])
+            _this.selectAddress = _this.checkData.addresses;
           }
         });
 
@@ -379,46 +264,101 @@
         this.options = options;
         this.network = network;
       },
-      addNode(fromId, obj, addresses){
-        var infoArray = obj.split("_");
-        this.edgesData.push({from: infoArray[0], to: fromId});
+      addNode(fromId, obj, data) {
+        var type = data.isFind ? "type_1" : "type_3";
+        if (type == "type_1") {
+          this.canAdd = false;
+        }
+        this.edgesData.push({from: data.unique, to: fromId});
         for (var i = 0; i < this.nodesData.length; i++) {
           /*是否记录过当前的点*/
-          if (this.nodesData[i].id == infoArray[0])
+          if (this.nodesData[i].id == data.unique)
             return
         }
         this.nodesData.push({
-          id: infoArray[0],
-          group: "type_1",
-          title: infoArray[0],
-          addresses: addresses
+          id: data.unique,
+          group: type,
+          title: data.unique,
+          data: data
         });
-        return infoArray[0];
+        return data.unique;
       },
-      getAddress(id){
+      getAddress(id) {
         for (var i = 0; i < this.nodesData.length; i++) {
           if (this.nodesData[i].id == id) {
             return this.nodesData[i].addresses;
           }
         }
       },
-      addData()
-      {
-        console.log(this.checkAddress)
-        return;
-        if (this.checkAddress && !this.hasCheckAddress[this.checkAddress]) {
-          this.getData();
+      getCheckData(id) {
+        for (var i = 0; i < this.nodesData.length; i++) {
+          if (this.nodesData[i].id == id) {
+            return this.nodesData[i].data;
+          }
         }
+      },
+      delConfirm() {
+        this.$confirm('是否删除该报告?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+          beforeClose: (action, instance, done) => {
+            if (action === 'confirm') {
+              instance.confirmButtonLoading = true;
+              instance.confirmButtonText = '删除中...';
+              this.delAddress().then(res => {
+                if (res.data.success) {
+                  this.loading = true
+                  instance.confirmButtonLoading = false;
+                  done();
+                  this.$message({
+                    type: 'success',
+                    duration: 2000,
+                    message: res.data.message
+                  })
+                  setTimeout(() => {
+                    this.$router.push('/relation')
+                  }, 2000)
+                } else {
+                  instance.confirmButtonLoading = false;
+                  this.$message.error(res.data.message)
+                  done()
+                }
+              })
+            } else {
+              done()
+            }
+          }
+        })
+      },
+      addData() {
+        /*是否找到终点了*/
+        if (!this.canAdd) {
+          return;
+        }
+        this.getData();
+      },
+      openSelectAddress() {
+        $("#myModalE").modal("show")
+      },
+      initialize() {
+        let id = parseInt(this.$route.query.id);
+        let analysisId = this.$route.query.analysisId;
+        this.analysisId = analysisId;
+        this.$http.all([this.getData( analysisId, true)])
+      },
+      strToJson(str) {
+        var json = (new Function("return " + str))();
+        return json;
       }
     },
-    mounted()
-    {
-      let id = parseInt(this.$route.query.id);
-      this.getData(id, true);
-      // this.initialize();
+    mounted() {
+      this.initialize();
     },
     components: {
-      MainHeader
+      PageHeader,
+      MainHeader,
+      selectAddress
     }
   }
 </script>
