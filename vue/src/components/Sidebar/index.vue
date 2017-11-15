@@ -4,10 +4,10 @@
 		<ul class="sidebar-panel nav">
 			<li class="sidetitle">MAIN</li>
 			<li>
-				<a href="index.html"><span class="icon color5"><i class="fa fa-home"></i></span>首页</a>
+				<a href="javascript:void(0)"><span class="icon color5"><i class="fa fa-home"></i></span>首页</a>
 			</li>
 			<li>
-				<a href="#"><span class="icon color6"><i class="fa fa-globe"></i></span>案件管理</a>
+				<a href="javascript:void(0)"><span class="icon color6"><i class="fa fa-globe"></i></span>案件管理</a>
 			</li>
 			<li>
 				<router-link :to="{ name: 'object' }"><span class="icon color7"><i class="fa fa-user"></i></span>对象管理
@@ -30,7 +30,7 @@
 				<router-link :to="{ name: 'relation' }"><span class="icon color8"><i class="fa fa-lightbulb-o"></i></span>关联分析</router-link>
 			</li>
 			<li>
-				<a href="charts.html"><span class="icon color8"><i class="fa fa-flash"></i></span>实时预警<span class="label label-default">2</span></a>
+				<a href="javascript:void(0)"><span class="icon color8"><i class="fa fa-flash"></i></span>实时预警<span class="label label-default">2</span></a>
 			</li>
 
 		</ul>
@@ -42,19 +42,23 @@
         <transition name="slide-show">
   				<ul>
   					<li>
-  						<a href="form-elements.html">虚拟币保管箱</a>
+              <!--form-elements-->
+  						<a href="javascript:void(0)">虚拟币保管箱</a>
   					</li>
   					<li>
-  						<a href="layouts.html">取证镜像管理工具</a>
+              <!--layouts.html-->
+  						<a href="javascript:void(0)">取证镜像管理工具</a>
   					</li>
   					<li>
-  						<a href="text-editors.html">协查函生成工具</a>
+              <!--text-editors-->
+  						<a href="javascript:void(0)">协查函生成工具</a>
   					</li>
   				</ul>
         </transition>
 			</li>
 			<li>
-				<a href="widgets.html"><span class="icon color11"><i class="fa fa-diamond"></i></span>信息帮助</a>
+        <!--widgets.html-->
+				<a href="javascript:void(0)"><span class="icon color11"><i class="fa fa-diamond"></i></span>信息帮助</a>
 			</li>
 		</ul>
 

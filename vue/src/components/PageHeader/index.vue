@@ -12,7 +12,8 @@
 						<a @click='routerBack' class="btn btn-light"><i class="fa fa-angle-left f-bold"></i>返回</a>
 						<a @click='reload' class="btn btn-light"><i class="fa fa-refresh"></i>刷新</a>
 						<!--<a href="#" class="btn btn-light"><i class="fa fa-search"></i></a>-->
-						<router-link :to="{name: 'homepage'}" class="btn btn-light" id="topstats"><i class="fa fa-home"></i>首页</router-link>
+					<!--	<router-link :to="{name: 'homepage'}" class="btn btn-light" id="topstats"><i class="fa fa-home"></i>首页</router-link>-->
+            <a href="javascript:void(0)" class="btn btn-light" id="topstats"><i class="fa fa-home"></i>首页</a>
 					</div>
 				</div>
 				<!-- 页面标题右侧部分end -->

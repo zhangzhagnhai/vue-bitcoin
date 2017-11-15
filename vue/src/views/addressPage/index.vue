@@ -160,6 +160,10 @@ export default {
 		searchAddress(value){
 			this.getList({address:value})
 		},
+    searchAddress2(value){
+      let searchKey=this.$route.query.search;
+      this.getList({address:searchKey})
+    },
 		sortItem(arg1,arg2){
 			this.acceptType = arg1
 			this.sortType = arg2
@@ -176,7 +180,12 @@ export default {
 			this.getList({ pageNumber:value, desc : this.sortType, orderType: this.acceptType, startTime: this.startTime, endTime: this.endTime})
 		},
 		initialize(){
-			this.$http.all([this.getData(),this.getList()])
+      let searchKey=this.$route.query.search;
+      if(searchKey){
+        this.$http.all([this.getData(),this.searchAddress(searchKey)])
+      }else{
+        this.$http.all([this.getData(),this.getList()])
+      }
 		}
 	},
   computed: {
@@ -191,7 +200,8 @@ export default {
       if(val==true){
         this.getList();
       }
-    }
+    },
+    "$route": "searchAddress2"
   },
 	mounted(){
   	this.initialize()

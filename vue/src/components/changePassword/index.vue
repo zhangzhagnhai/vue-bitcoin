@@ -10,6 +10,7 @@
           </div>
           <div class="modal-body">
             <el-form class="form-horizontal" :model='ruleForm' :rules='objectRules' ref="ruleForm" auto-complete="off">
+              <input type="password" name="password1"  style="display:none"/>
               <!--输入原密码-->
               <div class="form-group" style="margin-top: 10px;">
                 <label class="col-sm-2 control-label form-label">原密码</label>

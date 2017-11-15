@@ -244,7 +244,6 @@
           title: '0',
           data:beginData
         }];
-        console.log(beginData.addresses)
         this.checkData=beginData;
         this.edgesData = [];
         if(data.txtargetAddList){

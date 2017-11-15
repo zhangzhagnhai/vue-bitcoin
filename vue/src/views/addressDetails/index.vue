@@ -36,7 +36,7 @@
 				</div>
 				<div class="col-md-4">
 				<!--	<router-link :to="{ name: 'addressCharts',query:{ address: data.address }}" class="btn btn-default pull-right">地址分析</router-link>-->
-          <a href="javascript:void(0)" @click="openAddressCharts" class="btn btn-default pull-right">地址分析</a>
+          <a v-if="data.sourcefrom!='unknown'" href="javascript:void(0)" @click="openAddressCharts" class="btn btn-default pull-right">地址分析</a>
 				</div>
 			</div>
 			<!--基本信息end-->

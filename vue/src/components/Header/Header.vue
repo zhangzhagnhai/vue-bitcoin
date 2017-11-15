@@ -13,10 +13,26 @@
     <!-- End Sidebar Show Hide Button -->
 
     <!-- Start Searchbox -->
-    <form class="searchform">
+    <!--<form class="searchform ">
       <input type="text" class="searchbox" id="searchbox" placeholder="Search">
       <span class="searchbutton"><i class="fa fa-search"></i></span>
+    </form>-->
+    <form  class="searchform ">
+      <el-input v-model="searchValue" placeholder="请输入名称身份证或地址"  class="input-with-select">
+        <el-select v-model="optionValue" slot="prepend" placeholder="请选择">
+          <el-option v-for="(item,index) in options" :key=index :label="item.label" :value="item.value"></el-option>
+        </el-select>
+        <el-button slot="append" icon="search" @click="toSearch"></el-button>
+      </el-input>
     </form>
+<!--    <div class="searchbox">
+      <el-select v-model="value2"  placeholder="请选择" style="border: none" >
+        <el-option  :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                    v-for="item in options2"></el-option>
+      </el-select>
+    </div>-->
     <!-- End Searchbox -->
 
     <!-- Start Top Menu -->
@@ -35,7 +51,7 @@
     <!-- End Top Menu -->
 
     <!-- Start Sidepanel Show-Hide Button -->
-    <a href="#sidepanel" class="sidepanel-open-button"><i class="fa fa-outdent"></i></a>
+    <a v-if="false" href="javascript:void(0)" class="sidepanel-open-button"><i class="fa fa-outdent"></i></a>
     <!-- End Sidepanel Show-Hide Button -->
     <!-- Start Top Right -->
 		<ul class="top-right">
@@ -98,7 +114,16 @@ export default {
   },
   data() {
     return {
-      loading:false
+      loading:false,
+      options: [{
+        value: 1,
+        label: '地址'
+      },{
+        value: 2,
+        label: '对象'
+      }],
+      optionValue: 1,
+      searchValue:''
     }
   },
   computed: mapState({
@@ -125,20 +150,38 @@ export default {
     objectSuccess(){
       this.$emit('objectSuccess');
     },
+    toSearch(){
+      if(this.optionValue === 1){
+        this.$router.push({name:'address',query:{search: this.searchValue}})
+      }else{
+        this.$router.push({name:'object',query:{search: this.searchValue}})
+      }
+    }
   },
   mounted() {
     $('.sidebar-open-button , .sidebar-open-button-mobile').on('click', function () {
       if ($('.sidebar').hasClass('active')) {
         $('.sidebar').removeClass('active')
         $('.content').css({ 'marginLeft': 250, 'transition': 'all 0.4s ease-in-out' })
-        $('.sidebar').css({ 'marginLeft': 0, 'transition': 'all 0.4s ease-in-out'})
+        $('.sidebar').css({ 'marginLeft': 0, 'transition': 'all 0.4s ease-in-out','display':'block'})
 	    } else {
         $('.sidebar').addClass('active')
         $('.content').css({ 'marginLeft': 0, 'transition': 'all 0.4s ease-in-out' })
-        $('.sidebar').css({ 'marginLeft': -250, 'transition': 'all 0.4s ease-in-out'})
+        $('.sidebar').css({ 'marginLeft': -250, 'transition': 'all 0.4s ease-in-out','display':'none'})
 
       }
     })
   },
 }
 </script>
+<style scoped>
+  .searchform{
+    width: 440px;
+  }
+  .el-select{
+    width: 90px;
+  }
+  .input-with-select .el-input-group__prepend {
+    background-color: #fff;
+  }
+</style>

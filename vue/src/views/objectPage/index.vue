@@ -158,6 +158,10 @@ export default {
 		searchName(value){
 			this.getList({name:value})
 		},
+    searchName2(value){
+      let searchKey=this.$route.query.search;
+      this.getList({name:searchKey})
+    },
 		sortItem(arg1,arg2){
 			this.acceptType = arg1
 			this.sortType = arg2
@@ -176,7 +180,12 @@ export default {
 		},
 
 		initialize(){
-			this.$http.all([this.getData(),this.getList()])
+      let searchKey=this.$route.query.search;
+      if(searchKey){
+        this.$http.all([this.getData(),this.searchName(searchKey)])
+      }else{
+        this.$http.all([this.getData(),this.getList()])
+      }
 	  },
   },
   computed: {
@@ -190,7 +199,8 @@ export default {
       if(val==true){
         this.getList();
       }
-    }
+    },
+    "$route": "searchName2"
   },
   created(){
 		//this.getAddressList()
