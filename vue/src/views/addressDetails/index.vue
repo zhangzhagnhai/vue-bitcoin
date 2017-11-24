@@ -109,7 +109,9 @@
 							<td><span v-bind:class="[item.inout === '转出' ? 'color10' : 'color7']">{{item.inout}}</span></td>
 							<td><small  v-bind:class="[item.inout === '转出' ? 'color10' : 'color7']">{{item.totalAmount}}</small></td>
 							<td>
-								<router-link :to="{ name: 'addressdetails',query:{ address: item.txAddresses }}" target = _blank class="txid color4">{{item.txAddresses}}</router-link>
+                <toAddressDetail :address="item.txAddresses">
+                  <a href="javascript:void(0)"target = _blank class="txid color4">{{item.txAddresses}}</a>
+                </toAddressDetail>
 							</td>
 							<td><span v-bind:class="[item.txstatus === '已确认' ? 'color5' : 'color4']"><i class="fa" v-bind:class="[item.txstatus === '已确认' ? 'fa-check' : 'fa-close']"></i>&nbsp;{{item.txstatus}}</span></td>
 							<td>
@@ -137,7 +139,7 @@
 					显示与该地址有交易行为的地址。 点击&nbsp;
 					<code>&nbsp;<i class="fa-search fa color4"></i>&nbsp;</code>&nbsp;可根据交易地址查询。
 				</p>
-				<table class="table table-striped addressBasic_table">
+				<table class="table table-striped addressBasic_table" style="overflow: hidden;">
 					<thead>
 						<tr>
 							<td>地址集</td>
@@ -151,8 +153,11 @@
 							<td style="position: relative">
 								<!-- <a class="txid color5" v-for="x in item.addresses">{{x}}</a> -->
 								<div class="addresset" :class="{ showed : showNodes[index]}">
-								<router-link :style="{overflow:'visible'}" v-for="(x, index) in item.addresses" :key = 'index' :to = "{ name: 'addressdetails',query:{ address: x }}" target = _blank class="txid color5">{{x}}</router-link>
-								<i @click="showNodes.splice(index, 1, !showNodes[index])" class="show-more fa" :class="[showNodes[index] ? 'fa-angle-double-up' : 'fa-angle-double-down']" v-if='item.addresses.length > 1 '></i>
+                  <toAddressDetail :address="item.addresses[index]" :key = 'index'  v-for="(x, index) in item.addresses">
+                    <a href="javascript:void(0)" :style="{overflow:'visible'}"   class="txid color5">{{x}}</a>
+                  </toAddressDetail>
+						<!--		<router-link :style="{overflow:'visible'}" v-for="(x, index) in item.addresses" :key = 'index' :to = "{ name: 'addressdetails',query:{ address: x }}" target = _blank class="txid color5">{{x}}</router-link>-->
+							  	<i @click="showNodes.splice(index, 1, !showNodes[index])" class="show-more fa" :class="[showNodes[index] ? 'fa-angle-double-up' : 'fa-angle-double-down']" v-if='item.addresses.length > 1 '></i>
 								</div>
 							</td>
 							<td>
@@ -258,11 +263,13 @@
 import { mapState, mapActions } from 'vuex'
 import PageHeader from '../../components/PageHeader/'
 import Panelwrap from'../../components/PanelWrap/'
+import toAddressDetail from'../../components/toAddressDetail/'
 
 export default {
 	components:{
 		PageHeader,
 		Panelwrap,
+    toAddressDetail
 	},
   data() {
   	var checkAddress = (rule, value, callback) =>{
@@ -310,6 +317,7 @@ export default {
 			sortType: '',
 			startTime: '',
 			endTime: '',
+      searchVal:'',
     	defaultPage1:1,
     	defaultPage2:1,
     	sortValue:'',
@@ -337,9 +345,12 @@ export default {
   filters:{
 
   },
+  watch:{
+    "$route": "initialize"
+  },
   mounted(){
-  	let address = this.$route.query.address
-		this.initialize(address)
+  	//let address = this.$route.query.address
+		this.initialize()
   },
   methods:{
   	getObjectData(){
@@ -439,12 +450,12 @@ export default {
 					}
 				})
 				.catch(err =>{
-         			 if (err) {
-						this.$message({
-							message: '登录失效,请重新登录',
-							type: 'warning',
-						})
-						setTimeout(()=>{this.$router.push('/loginpage')},3000)
+         if (err) {
+                 this.$message({
+                   message: '数据返回异常，请尝试刷新或者重新登录',
+                   type: 'warning',
+                 })
+					//	setTimeout(()=>{this.$router.push('/loginpage')},3000)
 					}
     		})
 		},
@@ -477,7 +488,8 @@ export default {
 					}
     		})
 		},
-		initialize(address){
+		initialize(){
+      let address = this.$route.query.address
 			this.$http.all([this.getData(address),this.getTrade(),this.getTradeAdd(),this.getObjectData()])
 		},
 		exchangeData(val){
@@ -504,7 +516,9 @@ export default {
 		searchAddress(value){
 			// let address = value
 			// if( address == '' ){address = this.$route.query.address}
-			this.getTrade({txAddress:value})
+			//this.getTrade({txAddress:value})
+      this.searchVal=value;
+      this.handleTardeChange();
 			this.defaultPage1 = 1
 		},
 		searchAddress2(value){
@@ -516,7 +530,7 @@ export default {
 		},
 
 		handleTardeChange(value){
-			this.getTrade({ pageNumber:value, desc : this.sortType, orderType: this.acceptType, startTime: this.startTime, endTime: this.endTime, inout: this.exchangValue, txStatus: this.txStatusValue})
+			this.getTrade({ pageNumber:value,txAddress:this.searchVal, desc : this.sortType, orderType: this.acceptType, startTime: this.startTime, endTime: this.endTime, inout: this.exchangValue, txStatus: this.txStatusValue})
 		},
 		handleTradeAddChange(value){
 			this.getTradeAdd({pageNumber:value})
@@ -525,38 +539,46 @@ export default {
 			return this.$http.post('/api/address/delete/',{address:this.$route.query.address})
 		},
 		delConfirm(){
-			this.$confirm('是否删除该地址?', '提示', {
+      if (this.data.sourcefrom == 'unknown') {
+        this.$message({
+          message: '未知地址，暂不支持删除',
+          type: 'warning',
+        })
+      }else{
+        this.$confirm('是否删除该地址?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning',
           beforeClose: (action, instance, done) =>{
-						if (action === 'confirm'){
-							instance.confirmButtonLoading = true;
+            if (action === 'confirm'){
+              instance.confirmButtonLoading = true;
               instance.confirmButtonText = '删除中...';
-							this.delAddress().then(res =>{
-								if (res.data.success) {
-										this.loading = true
-										instance.confirmButtonLoading = false;
-										done();
-										this.$message({
-											type: 'success',
-											duration: 2000,
-            					message:res.data.message
-									})
-										setTimeout(()=>{
-											this.$router.push('/address')
-										},2000)
-								}else{
-									  instance.confirmButtonLoading = false;
-										this.$message.error(res.data.message)
-										done()
-								}
-							})
-						}else{
-							done()
-						}
+              this.delAddress().then(res =>{
+                if (res.data.success) {
+                  this.loading = true
+                  instance.confirmButtonLoading = false;
+                  done();
+                  this.$message({
+                    type: 'success',
+                    duration: 2000,
+                    message:res.data.message
+                  })
+                  setTimeout(()=>{
+                    this.$router.push('/address')
+                  },2000)
+                }else{
+                  instance.confirmButtonLoading = false;
+                  this.$message.error(res.data.message)
+                  done()
+                }
+              })
+            }else{
+              done()
+            }
           }
         })
+      }
+
 		},
 		submitForm(formName) {
       this.$refs[formName].validate((valid) => {

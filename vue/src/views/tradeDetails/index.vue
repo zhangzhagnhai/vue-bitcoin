@@ -60,7 +60,9 @@
 								{{item.amount}}BTC
 							</div>
 							<div class="address">
-								<router-link :to="{ name: 'addressdetails',query:{ address: item.address }}" class="address">{{item.address}}</router-link >
+                <toAddressDetail :address="item.address">
+                  <a href="javascript:void(0)" class="address">{{item.address}}</a>
+                </toAddressDetail>
 							</div>
 						</div>
 					</div>
@@ -78,7 +80,9 @@
 								{{item.amount}} BTC
 							</div>
 							<div class="address">
-								<router-link :to="{ name: 'addressdetails',query:{ address: item.address }}" class="address">{{item.address}}</router-link >
+                <toAddressDetail :address="item.address">
+                  <a href="javascript:void(0)" class="address">{{item.address}}</a>
+                </toAddressDetail>
 							</div>
 						</div>
 					</div>
@@ -100,14 +104,17 @@
 </template>
 <script>
 import PageHeader from '../../components/PageHeader/'
+import toAddressDetail from'../../components/toAddressDetail/'
 
 export default {
 	components:{
 		PageHeader,
+    toAddressDetail
 	},
   data() {
     return {
     	loading:false,
+
     	data:'',
     }
   },
@@ -124,6 +131,12 @@ export default {
 				.then( res =>{
 				this.loading = false
 				this.data = res.data.data
+			}).catch(err =>{
+          this.loading=false
+          this.$message({
+            message: '数据返回异常，请尝试刷新或者重新登录',
+            type: 'warning',
+          })
 			})
 		}
   },

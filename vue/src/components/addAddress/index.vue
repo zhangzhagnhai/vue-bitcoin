@@ -178,7 +178,11 @@
           },
           openObject(){
            // $('#myModalA').data('index',1)
+            var _this=this;
             $("#myModalA").modal({ show: true }, {noMore: '1'})
+            $('#myModalA').on('hide.bs.modal', function () {
+              _this.getObjectData();
+           })
           }
         },
         components: {addObject},

@@ -62,16 +62,20 @@
 				<tbody v-if='lists'>
 					<tr v-for='(item,index) in lists.list' :key="index">
 						<td>
-							<router-link :to="{ name: 'addressdetails',query:{ address: item.address }}" class="txid color4">{{item.address}}</router-link>
+							<a @click=toAddressDetail(item,index) class="txid color4">{{item.address}}</a>
 						</td>
 						<td><small>{{item.time}}</small></td>
 						<td><span :class="[item.source_from === 'manual' ? 'color10' : 'color5']">{{item.source_from | sourceFilter}}</span></td>
-						<td>{{item.tx_num}}</td>
-						<td>{{item.balance | feeFilter}} BTC</td>
-						<td>{{item.r_address_num}}</td>
+						<td>{{item.tx_num==-1?'-':item.tx_num}}</td>
+						<td>{{item.tx_num==-1?'-':item.balance | feeFilter}} {{item.tx_num==-1?'':'BTC'}}</td>
+						<td>{{item.tx_num==-1?'-':item.r_address_num}}</td>
 						<td>
-							<router-link :to="{ name: 'addressdetails',query:{ address: item.address }}" class="btn btn-default btn-sm f-size-12">地址详情</router-link>
-						</td>
+							<a @click=toAddressDetail(item,index) v-if="item.is_cache==1" class="btn btn-success btn-sm f-size-12">地址详情</a>
+              <a @click=toAddressDetail(item,index) v-if="item.is_cache!=1&&isLoadingAddress[item.address]==1&&item.tx_num!=-1" class="btn btn-default btn-sm f-size-12">地址详情</a>
+              <a @click=toAddressDetail(item,index) v-if="item.is_cache!=1&&!isLoadingAddress[item.address]" class="btn btn-default btn-sm f-size-12">地址详情</a>
+              <a @click=toAddressDetail(item,index) v-if="item.is_cache!=1&&isLoadingAddress[item.address]==2" class="btn btn-default btn-sm f-size-12">数据加载中</a>
+              <a @click=toAddressDetail(item,index) v-if="item.is_cache!=1&&isLoadingAddress[item.address]==1&&item.tx_num==-1" class="btn btn-warning btn-sm f-size-12">地址正在添加</a>
+            </td>
 					</tr>
 				</tbody>
 			</table>
@@ -101,6 +105,7 @@ export default {
     return {
     	items: {},
     	lists:[],
+      isLoadingAddress:{},
     	loading:false,
     	desc:true,
     	sortValue:'',
@@ -110,7 +115,9 @@ export default {
 			acceptType: '',
 			sortType: '',
 			startTime: '',
-			endTime: ''
+			endTime: '',
+      searchVal:'',
+      getListTimer:''
     }
   },
   methods: {
@@ -123,32 +130,47 @@ export default {
 			})
 				.catch(err =>{
 					if (err) {
-						this.$message({
-							message: '登录失效,请重新登录',
-							type: 'warning',
-						})
-						setTimeout(()=>{this.$router.push('/loginpage')},3000)
+            this.loading=false
+            this.$message({
+              message: '数据返回异常，请尝试刷新或者重新登录',
+              type: 'warning',
+            })
+						//setTimeout(()=>{this.$router.push('/loginpage')},3000)
 					}
 				})
 
 		},
-		getList(params){
-			this.loading = true
+    getList(params){
+      clearInterval(this.getListTimer);
+      this.getListData(params)
+      /*定时获取地址列表*/
+      this.getListTimer=setInterval(()=>{
+        this.getListData(params,true)
+      },60*1000)
+    },
+		getListData(params,isUpdate){
+      if (!isUpdate)
+        this.loading = true
       this.$store.commit(addressUpdate,false)
 			this.$http.post('/api/address/page',params)
 				.then(res =>{
 					this.loading = false
-          if(res.data.data)
-				  	this.lists = res.data.data
-					if (this.lists.list.length==0) {
-						this.$message({
-							message: '暂无记录',
-							type: 'warning',
-						})
-					}
+          if(res.data.data){
+            if (res.data.data.list.length==0) {
+              if (!isUpdate){
+                this.lists = res.data.data
+                this.$message({
+                  message: '暂无记录',
+                  type: 'warning',
+                })
+              }
+            }else{
+              this.lists = res.data.data
+            }
+          }
 				})
 				.catch(err =>{
-					if (err) {
+					if (!isUpdate) {
 					  this.loading=false
             this.$message({
               message: '数据返回异常，请尝试刷新或者重新登录',
@@ -158,7 +180,9 @@ export default {
 				})
 		},
 		searchAddress(value){
-			this.getList({address:value})
+		  this.searchVal=value;
+		  this.handleCurrentChange();
+			//this.getList({address:value})
 		},
     searchAddress2(value){
       let searchKey=this.$route.query.search;
@@ -177,8 +201,26 @@ export default {
 			this.handleCurrentChange()
 		},
 		handleCurrentChange(value){
-			this.getList({ pageNumber:value, desc : this.sortType, orderType: this.acceptType, startTime: this.startTime, endTime: this.endTime})
+			this.getList({ pageNumber:value,address:this.searchVal,desc : this.sortType, orderType: this.acceptType, startTime: this.startTime, endTime: this.endTime})
 		},
+    toAddressDetail(data){
+      if(data.is_cache){
+        this.$router.push({name:"addressdetails",query:{address:data.address}})
+      }else if(data.tx_num==-1){
+        this.$set(this.isLoadingAddress,data.address, 1);
+      }else{
+        this.$http.post('/api/address/addrTask?',{address:data.address})
+          .then(res =>{
+            if(res.data.data==0){
+              /*正在处理*/
+              this.$set(this.isLoadingAddress,data.address, 2);
+            }else{
+              /*处理完毕*/
+              this.$router.push({name:"addressdetails",query:{address:data.address}})
+            }
+          })
+      }
+    },
 		initialize(){
       let searchKey=this.$route.query.search;
       if(searchKey){
@@ -196,7 +238,6 @@ export default {
   },
   watch: {
     updateState(val) {
-      console.log(val)
       if(val==true){
         this.getList();
       }
@@ -206,6 +247,9 @@ export default {
 	mounted(){
   	this.initialize()
 	},
+  destroyed(){
+    clearInterval(this.getListTimer);
+  }
 }
 </script>
 <style lang="stylus">

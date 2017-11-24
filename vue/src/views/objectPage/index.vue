@@ -1,4 +1,4 @@
-<template>
+﻿<template>
 	<div>
 		<div v-if="loading" class="loading"><img src="../../assets/img/loading.gif" alt="loading-img"></div>
 		<MainHeader title='对象管理' sub-title='可管理对象，包括新增对象、编辑对象和删除对象' btn-title='添加新对象'  target="myModalA"></MainHeader>
@@ -62,7 +62,7 @@
 					<tbody>
 						<tr v-if='lists' v-for='(item,index) in lists.list'>
 							<td>
-								<router-link :to="{ name: 'objectdetails', query:{ id: item.target_id } }"class="txid color4">{{item.name}}&nbsp<small>{{item.code}}</small></router-link>
+								<a @click="toObjectDetail(item)" class="txid color4">{{item.name}}&nbsp<small>{{item.code}}</small></a>
 							</td>
 							<td><small>{{item.time}}</small></td>
 							<td><span :class="[item.source_from === 'manual' ? 'color10' : 'color5']">{{item.source_from | sourceFilter}}</span></td>
@@ -70,7 +70,7 @@
 							<td>{{item.balance | feeFilter }} BTC</td>
 							<td>{{item.relation_num}}个</td>
 							<td>
-								<router-link :to="{ name: 'objectdetails', query:{ id: item.target_id } }" class="btn btn-default btn-sm f-size-12">对象详情</router-link>
+								<a @click="toObjectDetail(item)"  :class="item.is_cache==1?'btn btn-success btn-sm f-size-12':'btn btn-default btn-sm f-size-12'">{{item.is_cache==0&&isLoadingObject[item.target_id]?"数据加载中":"对象详情"}}</a>
 							</td>
 						</tr>
 					</tbody>
@@ -109,7 +109,10 @@ export default {
     	acceptType: '',
 			sortType: '',
 			startTime: '',
-			endTime: ''
+			endTime: '',
+      searchVal:'',
+      isLoadingObject:{},
+      getListTimer:''
     }
   },
   methods: {
@@ -129,34 +132,50 @@ export default {
             })
 				})
 		},
-    showLoading(e){
-      this.loading=e;
+    getList(params){
+      clearInterval(this.getListTimer);
+      this.getListData(params)
+      /*定时获取地址列表*/
+      this.getListTimer=setInterval(()=>{
+        this.getListData(params,true)
+      },60*1000)
     },
-		getList(params){
-			this.loading = true;
+		getListData(params,isUpdate){
+      if (!isUpdate)
+			  this.loading = true;
       this.$store.commit(objectUpdate,false)
 			this.$http.post('/api/target/page',params)
 				.then(res =>{
 					this.loading = false
-          if( res.data.data)
-					  this.lists = res.data.data
-					if(this.lists.list.length == 0){
-						this.$message({
-							message: '暂无记录',
-							type: 'warning',
-						})
+
+          if( res.data.data){
+            if (res.data.data.list.length==0) {
+              if (!isUpdate){
+                this.lists = res.data.data
+                this.$message({
+                  message: '暂无记录',
+                  type: 'warning',
+                })
+              }
+            }else{
+              this.lists = res.data.data
+            }
 					}
 				})
 				.catch(err =>{
+				  if(!isUpdate){
             this.loading=false
             this.$message({
               message: '数据返回异常，请尝试刷新或者重新登录',
               type: 'warning',
             })
+          }
 				})
 		},
 		searchName(value){
-			this.getList({name:value})
+			//this.getList({name:value})
+      this.searchVal=value;
+      this.handleCurrentChange();
 		},
     searchName2(value){
       let searchKey=this.$route.query.search;
@@ -176,8 +195,25 @@ export default {
 		},
 
 		handleCurrentChange(value){
-			this.getList({ pageNumber:value, desc : this.sortType,  startTime: this.startTime, endTime: this.endTime})
+			this.getList({ pageNumber:value,name:this.searchVal, desc : this.sortType,  startTime: this.startTime, endTime: this.endTime})
 		},
+
+    toObjectDetail(data){
+      if(data.is_cache){
+        this.$router.push({name:"objectdetails",query:{id:data.target_id}})
+      }else{
+        this.$http.post('/api/target/targetTask?',{targetId:data.target_id})
+          .then(res =>{
+            if(res.data.data==0){
+              /*正在处理*/
+              this.$set(this.isLoadingObject,data.target_id, true);
+            }else{
+              /*处理完毕*/
+              this.$router.push({name:"objectdetails",query:{id:data.target_id}})
+            }
+          })
+      }
+    },
 
 		initialize(){
       let searchKey=this.$route.query.search;

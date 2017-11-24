@@ -18,7 +18,7 @@
       <span class="searchbutton"><i class="fa fa-search"></i></span>
     </form>-->
     <form  class="searchform ">
-      <el-input v-model="searchValue" placeholder="请输入名称身份证或地址"  class="input-with-select">
+      <el-input v-model="searchValue" :placeholder="optionValue==1?'请输入地址':'请输入名称或身份证号'"  class="input-with-select">
         <el-select v-model="optionValue" slot="prepend" placeholder="请选择">
           <el-option v-for="(item,index) in options" :key=index :label="item.label" :value="item.value"></el-option>
         </el-select>
@@ -94,13 +94,14 @@
 		</ul>
 		<!-- End Top Right -->
     <div v-if="loading" class="loading"><img src="../../assets/img/loading.gif" alt="loading-img"></div>
-    <addAddress id="myModalB" @loading="objectLoading" @addSuccess="objectSuccess"></addAddress>
+    <addAddress id="myModalB" @loading="objectLoading" @addSuccess="addressSuccess"></addAddress>
     <addObject id="myModalA" @loading="objectLoading" @addSuccess="objectSuccess"></addObject>
     <changePassword></changePassword>
   </div>
 </template>
 
 <script>
+
 import { mapState } from 'vuex'
 import { LOGINOUT } from '../../store/types'
 import addObject from'../../components/addObject/'
@@ -140,12 +141,20 @@ export default {
             path: '/loginpage'
           })
         }
+      }).catch(err =>{
+        this.$store.commit(LOGINOUT)
+        this.$router.push({
+          path: '/loginpage'
+        })
       })
     },
 
     objectLoading(e){
       console.log(e)
       this.loading=e;
+    },
+    addressSuccess(){
+      this.$emit('addressSuccess');
     },
     objectSuccess(){
       this.$emit('objectSuccess');

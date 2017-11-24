@@ -37,7 +37,7 @@
             <td>
               <!--<router-link v-if="item.type==1" :to="{ name: 'addressCharts', query:{ address: item.title,analysisId:item.analysis_id } }"class="txid color4" style="line-height:normal; width: auto">{{item.analysis_id}}</router-link>
               <router-link v-if="item.type==2" :to="{ name: 'objectCharts', query:{ analysisId:item.analysis_id } }"class="txid color4" style="line-height:normal; width: auto">{{item.analysis_id}}</router-link>
-              --><a href="javascript:void(0)" class="txid color4" style="line-height:normal; width: auto">{{item.analysis_id}}</a>
+              --><a href="javascript:void(0)" class="txid color4" style="width: auto">{{item.analysis_id}}</a>
             </td>
             <td><small>{{(item.type==1?"地址:":"对象:")+item.title}}</small></td>
             <td><span :class="[item.source_from === 'manual' ? 'color10' : 'color5']">{{item.schedule}}</span></td>
@@ -91,6 +91,7 @@
               state:'',
               startTime: '',
               endTime: '',
+              searchVal:'',
               getListTimer:'',
               scheduleTimer:''
             }
@@ -144,7 +145,9 @@
             this.getList();
           },
           searchName(value){
-            this.getList({message:value})
+            this.searchVal=value;
+            this.handleCurrentChange()
+            //this.getList({message:value})
           },
           sortItem(arg1,arg2){
             this.acceptType = arg1
@@ -163,7 +166,7 @@
             this.handleCurrentChange()
           },
           handleCurrentChange(value){
-            this.getList({ pageNumber:value, desc : this.sortType, orderType: this.acceptType, states:this.state})
+            this.getList({ pageNumber:value,message: this.searchVal, desc : this.sortType, orderType: this.acceptType, states:this.state})
           },
           initialize(){
             this.$http.all([this.getList()])

@@ -121,8 +121,10 @@
 							<td><small>{{item.acceptTime}}</small></td>
 							<td>
 							<!-- 	<a class="txid color4 dealAddress" href="javascript:void(0)">{{item.txAddresses}}</a> -->
-							<router-link :to="{ name: 'addressdetails',query:{ address: item.txAddresses }}" target = _blank class="txid color4 dealAddress">{{item.txAddresses}}</router-link>
-							</td>
+                <toAddressDetail :address="item.txAddresses" >
+                  <a href="javascript:void(0)" class="txid color4 dealAddress">{{item.txAddresses}}</a>
+                </toAddressDetail>
+						</td>
 			<!-- 				<td>
 								<i class="fa f-size-16" :class="[ item.inout === '转入' ? ['fa-arrow-left','color7'] : ['fa-arrow-right','color10']]" ></i>
 							</td> -->
@@ -180,8 +182,10 @@
 								<tr v-if='addList' v-for ="(item, index) in addList.list">
 									<td>
 									<!-- 	<a class="txid color5 dealAddress" href="javascript:void(0)">{{item.address}}</a> -->
-										<router-link :to="{ name: 'addressdetails',query:{ address: item.address }}" target = _blank class="txid color5 dealAddress">{{item.address}}</router-link>
-									</td>
+									  <toAddressDetail :address="item.address" >
+                      <a href="javascript:void(0)" target = _blank class="txid color5 dealAddress">{{item.address}}</a>
+                    </toAddressDetail>
+                  </td>
 									<td><small>{{item.addTime}}</small></td>
 									<td><small>{{item.balance | feeFilter}}BTC</small></td>
 								</tr>
@@ -233,8 +237,10 @@
 								<tr v-if='targetList' v-for="(item, index) in targetList.list">
 									<td style="position: relative">
 										<div class="addresset" :class="{ showed : showNodes[index]}">
-										<router-link v-for="(x, index) in item.addresses" :key='index' :to="{ name: 'addressdetails',query:{ address: x }}" target = _blank class="txid color5 dealAddress">{{x}}</router-link>
-											<i @click="showNodes.splice(index, 1, !showNodes[index])" class="show-more fa" :class="[showNodes[index] ? 'fa-angle-double-up' : 'fa-angle-double-down']" v-if='item.addresses.length > 1 '></i>
+                      <toAddressDetail :address="item.addresses[index]" :key = 'index'  v-for="(x, index) in item.addresses">
+                        <a href="javascript:void(0)" :style="{overflow:'visible'}"  target = _blank class="txid color5">{{x}}</a>
+                      </toAddressDetail>
+									  	<i @click="showNodes.splice(index, 1, !showNodes[index])" class="show-more fa" :class="[showNodes[index] ? 'fa-angle-double-up' : 'fa-angle-double-down']" v-if='item.addresses.length > 1 '></i>
 										</div>
 									</td>
 									<td>
@@ -371,11 +377,13 @@
 <script>
 import PageHeader from '../../components/PageHeader/'
 import Panelwrap from'../../components/PanelWrap/'
+import toAddressDetail from'../../components/toAddressDetail/'
 
 export default {
 	components: {
 		PageHeader,
 		Panelwrap,
+    toAddressDetail
 	},
   data() {
   	var checkName = (rule, value, callback) =>{
@@ -448,6 +456,7 @@ export default {
 			startTime: '',
 			endTime: '',
 			sortValue:'',
+      searchVal:'',
     	exchangValue: '',
     	txStatusValue: '',
     	showNodes:'',
@@ -527,11 +536,12 @@ export default {
 				})
 				.catch(err =>{
 					if (err) {
-						this.$message({
-							message: '登录失效,请重新登录',
-							type: 'warning',
-						})
-						setTimeout(()=>{this.$router.push('/loginpage')},3000)
+            this.loading=false
+            this.$message({
+              message: '数据返回异常，请尝试刷新或者重新登录',
+              type: 'warning',
+            })
+            //setTimeout(()=>{this.$router.push('/loginpage')},3000)
 					}
 				})
 		},
@@ -539,38 +549,46 @@ export default {
 			return this.$http.post('/api/target/delete',{targetCode : this.data.code})
 		},
 		delConfirm(){
-			this.$confirm('是否删除该对象?', '提示', {
+      if (this.data.sourcefrom == 'unknown') {
+        this.$message({
+          message: '未知对象，暂不支持删除',
+          type: 'warning',
+        })
+      }else{
+        this.$confirm('是否删除该对象?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning',
           beforeClose: (action, instance, done) =>{
-						if (action === 'confirm'){
-							instance.confirmButtonLoading = true;
+            if (action === 'confirm'){
+              instance.confirmButtonLoading = true;
               instance.confirmButtonText = '删除中...';
-							this.delTarget().then(res =>{
-								if (res.data.success) {
-										instance.confirmButtonLoading = false;
-										this.loading = true
-										done();
-										this.$message({
-											type: 'success',
-											duration: 2000,
-            					message:res.data.message
-									})
-									setTimeout(()=>{
-										this.$router.push('/object')
-									},2000)
-								}else{
-									  instance.confirmButtonLoading = false;
-										this.$message.error(res.data.message)
-										done()
-								}
-							})
-						}else{
-							done()
-						}
+              this.delTarget().then(res =>{
+                if (res.data.success) {
+                  instance.confirmButtonLoading = false;
+                  this.loading = true
+                  done();
+                  this.$message({
+                    type: 'success',
+                    duration: 2000,
+                    message:res.data.message
+                  })
+                  setTimeout(()=>{
+                    this.$router.push('/object')
+                  },2000)
+                }else{
+                  instance.confirmButtonLoading = false;
+                  this.$message.error(res.data.message)
+                  done()
+                }
+              })
+            }else{
+              done()
+            }
           }
         })
+      }
+
 		},
 		getTxList(params){
 			this.loading = true
@@ -585,11 +603,11 @@ export default {
 				})
 				.catch(err =>{
 					if (err) {
-						this.$message({
-							message: '登录失效,请重新登录',
-							type: 'warning',
-						})
-						setTimeout(()=>{this.$router.push('/loginpage')},3000)
+            this.$message({
+              message: '数据返回异常，请尝试刷新或者重新登录',
+              type: 'warning',
+            })
+            //setTimeout(()=>{this.$router.push('/loginpage')},3000)
 					}
 				})
 		},
@@ -597,7 +615,9 @@ export default {
 		// 	this.getTxTarget({address: this.input2})
 		// },
 		searchAddress(val){
-			this.getTxList({txaddress:val})
+		  this.searchVal=val;
+      this.handlePageChange1()
+			//this.getTxList({txaddress:val})
 		},
 		searchaddress1(){
 			this.getAddList({address: this.input1})
@@ -623,7 +643,7 @@ export default {
 			this.handlePageChange1()
 		},
 		handlePageChange1(value){//分页查询
-			this.getTxList({pageNumber:value, desc : this.sortType, orderType: this.acceptType, startTime: this.startTime, endTime: this.endTime, inout: this.exchangValue, txStatus: this.txStatusValue})
+			this.getTxList({pageNumber:value,txaddress:this.searchVal, desc : this.sortType, orderType: this.acceptType, startTime: this.startTime, endTime: this.endTime, inout: this.exchangValue, txStatus: this.txStatusValue})
 		},
 		handlePageChange2(value){//已知地址分页查询
 			this.getAddList({pageNumber: value})
@@ -676,18 +696,22 @@ export default {
 					}
 				})
 				.catch(err =>{
-					if (err) {
-            this.loading=false
-            this.$message({
-              message: '数据返回异常，请尝试刷新或者重新登录',
-              type: 'warning',
-            })
-						//setTimeout(()=>{this.$router.push('/loginpage')},3000)
-					}
+          this.loading=false
+          this.$message({
+            message: '数据返回异常，请尝试刷新或者重新登录',
+            type: 'warning',
+          })
 			})
 		},
 		edit(){
-			$("#myModal").modal("show")
+      if (this.data.sourcefrom == 'unknown') {
+        this.$message({
+          message: '未知对象，暂不支持修改',
+          type: 'warning',
+        })
+      }else{
+        $("#myModal").modal("show")
+      }
 		},
 		confirmEdit(){
 			let param = {

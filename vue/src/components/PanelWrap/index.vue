@@ -30,7 +30,7 @@
 						</transition>
 					</li>
 					<li>
-						<a class="icon search-tool"  @click="show = !show">
+						<a class="icon search-tool" @click="searchClick">
 							<i class="fa fa-search"></i>查询
 						</a>
 					</li>
@@ -85,12 +85,16 @@ export default {
   data() {
     return {
     	sortState:true,
-    	show: false,
+    	show: true,
     	show1: false,
     	isActive: -1,
       isSearchSelect:-1,
     	exchangeValue: '转入',
     	input2: '',
+      state:'',
+      orderType:'',
+      desc:'',
+      val:'',
     	dataValue:'',
     	txStatusValue: '已确认',
 			sortItems: [
@@ -160,21 +164,39 @@ export default {
 			this.$emit('sortdata')
 		},
 		searchClick(value,index){
-      this.isSearchSelect=index;
-			this.$emit('searchClick',this.input2)
+      /*搜索*/
+      //this.isSearchSelect=index;
+      //this.filterList();
+	  	this.$emit('searchClick',this.input2)
 		},
     filterClick(index,state){
+		  /*分析任务状态筛选*/
       this.isSearchSelect=index;
+      this.state=state;
+      //this.filterList();
       this.$emit('filterClick',state)
     },
 		sortChangeItem(orderType,desc,index){
+      /*排序*/
 			this.isActive = index
+      this.orderType=orderType;
+			this.desc=desc;
+      //this.filterList();
 			this.$emit('sortItem',orderType,desc)
 		},
 		dataChange(val){
+      /*日期筛选*/
+      this.val=val
+      //this.filterList();
 			this.$emit('dataSelect',val)
-		}
-
+		},
+    filterList(){
+		  if(this.sortBtnType=="relationPage"){
+        this.$emit('updateList',this.input2,this.orderType,this.desc,this.state)
+      }else{
+        this.$emit('updateList',this.input2,this.orderType,this.desc, this.val)
+      }
+    }
 	},
 }
 </script>

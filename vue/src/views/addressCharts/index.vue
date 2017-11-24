@@ -132,7 +132,9 @@
             <td style="position: relative">
               <!-- <a class="txid color5" v-for="x in item.addresses">{{x}}</a> -->
               <div class="addresset" :class="{ showed : showNodes[index]}">
-                <router-link :style="{overflow:'visible'}" v-for="(x, index) in item.addresses" :key = 'index' :to = "{ name: 'addressdetails',query:{ address: x }}" target = _blank class="txid color5">{{x}}</router-link>
+                <toAddressDetail :address="item.addresses[index]" :key = 'index'  v-for="(x, index) in item.addresses">
+                  <a href="javascript:void(0)" :style="{overflow:'visible'}"  target = _blank class="txid color5">{{x}}</a>
+                </toAddressDetail>
                 <i @click="showNodes.splice(index, 1, !showNodes[index])" class="show-more fa" :class="[showNodes[index] ? 'fa-angle-double-up' : 'fa-angle-double-down']" v-if='item.addresses.length > 1 '></i>
               </div>
             </td>
@@ -140,7 +142,11 @@
               <a class="txid color4" href="javascript:void(0)">{{item.targetName}}</a>
             </td>
             <td>{{tradeState | taskStatusFilter}}</td>
-            <td><router-link class="btn btn-default"  :to = "{ name: 'addressdetails',query:{ address: item.addresses[0] }}"><small>查看详情</small></router-link></td>
+            <td>
+              <toAddressDetail :address="item.addresses[0]">
+                <a href="javascript:void(0)" class="btn btn-default" ><small>查看详情</small></a>
+              </toAddressDetail>
+             </td>
           </tr>
           </tbody>
         </table>
@@ -162,6 +168,8 @@
   import PageHeader from '../../components/PageHeader/'
   import Panelwrap from'../../components/PanelWrap/'
   import selectAddress from'../../components/selectAddress/'
+  import toAddressDetail from'../../components/toAddressDetail/'
+
   export default {
     data(){
       /*1是终点，2是起点，3是过渡*/
@@ -434,7 +442,8 @@
     components: {
       PageHeader,
       Panelwrap,
-      selectAddress
+      selectAddress,
+      toAddressDetail
     }
   }
 </script>

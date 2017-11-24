@@ -1,9 +1,9 @@
 const path = require('path')
 console.log(path)
-var api_base = process.env.NODE_ENV === 'production' ? 'http://localhost' :'http://192.168.1.172:8000' /*'http://btcmonitor.eshanren.com'*///btcmonitor.eshanren.com
+var api_base = process.env.NODE_ENV === 'production' ? 'http://localhost' :'http://192.168.1.41:8088' /*'http://btcmonitor.eshanren.com'*///btcmonitor.eshanren.com
 /*'http://btcmonitor.eshanren.com'*/
 /* http://192.168.1.142:9031 联汉*/
-/*'http://192.168.1.169:8000/'*/
+/*'http://192.168.1.172:8000/'*/
 /*'http://192.168.1.210:9031/'*/
 console.log(api_base)
 module.exports = {
