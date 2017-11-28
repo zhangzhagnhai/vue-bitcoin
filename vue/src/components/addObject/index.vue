@@ -1,5 +1,5 @@
 <template>
-  <div class="modal fade" :id="id" tabindex="-1" role="dialog" aria-hidden="true" style="color: #676a6c; ">
+  <div class="modal fade" id="myModalA" tabindex="-1" role="dialog" aria-hidden="true" style="color: #676a6c; ">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header text-center">
@@ -9,48 +9,13 @@
         </div>
         <div class="modal-body">
           <el-form class="form-horizontal" :model='ruleForm' :rules='objectRules' ref="ruleForm">
-            <!--输入对象姓名-->
-            <div class="form-group">
-              <label class="col-sm-2 control-label form-label">对象姓名</label>
+            <div class="form-group" v-for="item in itemArray">
+              <label class="col-sm-2 control-label form-label">{{item.name}}</label>
               <div class="col-sm-10">
-                <el-form-item prop='name'>
-                  <el-input v-model='ruleForm.name' type="text" placeholder="请输入对象姓名，必填">
-                    <template slot="prepend"><i style="width: 16px; text-align: center" class="fa fa-user color5"></i>
-                    </template>
+                <el-form-item :prop='item.prop'>
+                  <el-input v-model='ruleForm[item.prop]' :rows='5' :type="item.type" :placeholder="item.placeholder">
+                    <template v-if="item.type=='text'" slot="prepend"><i :class=item.class></i></template>
                   </el-input>
-                </el-form-item>
-              </div>
-            </div>
-            <!--输入对象身份证号-->
-            <div class="form-group">
-              <label class="col-sm-2 control-label form-label">身份证号</label>
-              <div class="col-sm-10">
-                <el-form-item prop='code'>
-                  <el-input v-model='ruleForm.code' type="text" placeholder="请输入身份证号，必填">
-                    <template slot="prepend"><i class="fa fa-newspaper-o color5"></i></template>
-                  </el-input>
-                </el-form-item>
-              </div>
-            </div>
-            <!--输入对象联系方式-->
-            <div class="form-group">
-              <label class="col-sm-2 control-label form-label">联系方式</label>
-              <div class="col-sm-10">
-                <el-form-item prop='phone'>
-                  <el-input v-model='ruleForm.phone' type="text" placeholder="可输入联系方式，选填">
-                    <template slot="prepend"><i style="width: 16px; text-align: center" class="fa fa-phone color5"></i>
-                    </template>
-                  </el-input>
-                </el-form-item>
-              </div>
-            </div>
-            <!--对象备注-->
-            <div class="form-group">
-              <label class="col-sm-2 control-label form-label">备注</label>
-              <div class="col-sm-10">
-                <el-form-item prop='remark'>
-                  <el-input type='textarea' :rows='5' v-model='ruleForm.remark'
-                            placeholder="可输入更多对象备注信息，选填(最大长度不能超过100汉字)"></el-input>
                 </el-form-item>
               </div>
             </div>
@@ -82,24 +47,24 @@
                       ></el-option>
                     </el-select>
                   </div>
-                  <!-- 			<div class="col-sm-2">
-                                                <a href="#" class="btn btn-default pull-right">添加新地址</a>
-                                            </div> -->
+                  <!--<div class="col-sm-2">
+                    <a href="#" class="btn btn-default pull-right">添加新地址</a>
+                   </div> -->
                 </div>
                 <!--涉及案件-->
-                <!-- 									<div class="form-group">
-                                                        <label class="col-sm-2 control-label form-label">涉及案件</label>
-                                                        <div class="col-sm-6">
-                                                            <select class="selectpicker">
-                                                                <option data-icon="fa fa-globe color5">&nbsp;案件1</option>
-                                                                <option data-icon="fa fa-globe color5">&nbsp;案件2</option>
-                                                                <option data-icon="fa fa-globe color5">&nbsp;案件3</option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="col-sm-4">
-                                                            <a href="#" class="btn btn-default pull-right">添加新案件</a>
-                                                        </div>
-                                                    </div> -->
+               <!--       <div class="form-group">
+                        <label class="col-sm-2 control-label form-label">涉及案件</label>
+                        <div class="col-sm-6">
+                          <select class="selectpicker">
+                            <option data-icon="fa fa-globe color5">&nbsp;案件1</option>
+                            <option data-icon="fa fa-globe color5">&nbsp;案件2</option>
+                            <option data-icon="fa fa-globe color5">&nbsp;案件3</option>
+                          </select>
+                        </div>
+                        <div class="col-sm-4">
+                          <a href="#" class="btn btn-default pull-right">添加新案件</a>
+                        </div>
+                      </div>-->
               </div>
             </div>
             <!--更多信息end-->
@@ -144,14 +109,6 @@
         }else {
           callback()
         }
-      /*  var ID = /^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/
-        if (!value) {
-          return callback(new Error('身份证号码不能为空'));
-        } else if (!ID.test(value)) {
-          return callback(new Error('身份证号码输入有误'));
-        } else {
-          callback()
-        }*/
       }
 
       var checkPhone = (rule, value, callback) =>{
@@ -191,6 +148,12 @@
           remark: '',
           addresses: '',
         },
+        itemArray:[
+          {name:"对象姓名",prop:"name",placeholder:"请输入对象姓名，必填",class:"fa fa-user color5",type:'text'},
+          {name:"身份证号",prop:"code",placeholder:"请输入身份证号，必填",class:"fa fa-newspaper-o color5",type:'text'},
+          {name:"联系方式",prop:"phone",placeholder:"可输入联系方式，选填",class:"fa fa-phone color5",type:'text'},
+          {name:"备注",prop:"remark",placeholder:"可输入更多对象备注信息，选填(最大长度不能超过100汉字)",type:'textarea'}
+        ],
         objectRules: {
           name: [
             {validator: checkName, trigger: 'blur'}
@@ -240,8 +203,7 @@
           if (res.data.success)
         {
           this.$store.commit(objectUpdate,true);
-          console.log(this.id)
-          $('#' + this.id).modal("hide");
+          $('#myModalA').modal("hide");
           this.$message({
             message: '添加成功',
             type: 'success'
@@ -285,7 +247,7 @@
     },
     mounted(){
       var _this=this;
-      $('#'+this.id).on('show.bs.modal', function(e) {
+      $('#myModalA').on('show.bs.modal', function(e) {
          _this.noMore=e.relatedTarget.noMore?true:false
       })
     },

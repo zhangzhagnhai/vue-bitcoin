@@ -1,6 +1,6 @@
 <template>
    <div style="color: #676a6c;">
-     <div class="modal fade" :id="id" tabindex="-1" role="dialog" aria-hidden="true">
+     <div class="modal fade" id="myModalB" tabindex="-1" role="dialog" aria-hidden="true">
        <div class="modal-dialog">
          <div class="modal-content">
            <div class="modal-header text-center">
@@ -9,23 +9,13 @@
            </div>
            <div class="modal-body">
              <el-form class="form-horizontal" :model="ruleAddress" :rules="addrules" ref='ruleAddress'>
-               <!--输入地址-->
-               <div class="form-group">
-                 <label  class="col-sm-2 control-label form-label">地址</label>
+               <div class="form-group" v-for="item in itemArray">
+                 <label class="col-sm-2 control-label form-label">{{item.name}}</label>
                  <div class="col-sm-10">
-                   <el-form-item prop='add'>
-                     <el-input type="text" placeholder="请输入地址，必填" v-model='ruleAddress.add'>
-                       <template slot="prepend"><i class="fa fa-map-marker color5"></i></template>
+                   <el-form-item :prop='item.prop'>
+                     <el-input v-model='ruleAddress[item.prop]' :rows='5' :type="item.type" :placeholder="item.placeholder">
+                       <template v-if="item.type=='text'" slot="prepend"><i :class=item.class></i></template>
                      </el-input>
-                   </el-form-item>
-                 </div>
-               </div>
-               <!--地址备注-->
-               <div class="form-group">
-                 <label class="col-sm-2 control-label form-label">备注</label>
-                 <div class="col-sm-10">
-                   <el-form-item prop='remark'>
-                     <el-input type="textarea" :rows='5' v-model='ruleAddress.remark'  placeholder="可输入更多地址备注信息，选填。(最大长度不能超过100汉字)"></el-input>
                    </el-form-item>
                  </div>
                </div>
@@ -73,12 +63,10 @@
          </div>
        </div>
      </div>
-     <!--<addObject id="myModalA" noMore="1"></addObject>-->
    </div>
 </template>
 <script>
    import { addressUpdate } from '../../store/types.js'
-    import addObject from'../../components/addObject/'
     export default {
         data(){
           var checkAddress = (rule, value, callback) =>{
@@ -119,6 +107,10 @@
                 { validator: checkTextArea, trigger: 'blur' }
               ],
             },
+            itemArray:[
+              {name:"地址",prop:"add",placeholder:"请输入地址，必填",class:"fa fa-map-marker color5",type:'text'},
+              {name:"备注",prop:"remark",placeholder:"可输入更多地址备注信息，选填。(最大长度不能超过100汉字)",type:'textarea'}
+            ],
             objectData:''
           }
         },
@@ -149,7 +141,7 @@
               console.log(res)
               if (res.data.success) {
                 this.$store.commit(addressUpdate,true);
-              $("#"+this.id).modal("hide");
+              $("#myModalB").modal("hide");
               this.$message({
                 message: '添加成功',
                 type: 'success'
@@ -185,7 +177,6 @@
            })
           }
         },
-        components: {addObject},
         mounted(){
           this.getObjectData()
         }

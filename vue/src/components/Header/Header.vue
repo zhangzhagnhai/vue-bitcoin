@@ -94,9 +94,9 @@
 		</ul>
 		<!-- End Top Right -->
     <div v-if="loading" class="loading"><img src="../../assets/img/loading.gif" alt="loading-img"></div>
-    <addAddress id="myModalB" @loading="objectLoading" @addSuccess="addressSuccess"></addAddress>
-    <addObject id="myModalA" @loading="objectLoading" @addSuccess="objectSuccess"></addObject>
-    <changePassword></changePassword>
+    <addAddress @loading="objectLoading" @addSuccess="addressSuccess"></addAddress>
+    <addObject  @loading="objectLoading" @addSuccess="objectSuccess"></addObject>
+    <changePwd></changePwd>
   </div>
 </template>
 
@@ -106,12 +106,12 @@ import { mapState } from 'vuex'
 import { LOGINOUT } from '../../store/types'
 import addObject from'../../components/addObject/'
 import addAddress from'../../components/addAddress/'
-import changePassword from'../../components/changePassword/'
+import changePwd from'../../components/changePwd/'
 export default {
   components: {
     addObject,
     addAddress,
-    changePassword
+    changePwd
   },
   data() {
     return {

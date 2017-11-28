@@ -26,7 +26,6 @@
 </template>
 <script>
   import { addressUpdate } from '../../store/types.js'
-  import addObject from'../../components/addObject/'
   export default {
     data(){
       return {
@@ -53,7 +52,6 @@
         $("#myModalA").modal({ show: true }, {noMore: '1'})
       }
     },
-    components: {addObject},
     mounted(){
      // this.getObjectData()
     }

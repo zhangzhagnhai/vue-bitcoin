@@ -4087,8 +4087,11 @@ Widgets
 }
 /*地址信息页 对象详情页 交易记录table 2017年7月18日 xmy新增*/
 .addressBasic{margin-bottom: 10px;padding-bottom: 10px;}
-.addressBasic_table .txid{width: 150px;height: 28px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;display: block;font-size: 12px; line-height: 28px}
+.addressBasic_table .txid{width: 150px; height: 28px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;display: block;font-size: 12px; line-height: 28px}
 .addressBasic_table .dealAddress{width: 100px;}
+.addressBasic_table .tda{max-width: 200px; overflow: hidden}
+.addressBasic_table .tdb{max-width: 150px}
+.addressBasic_table .tda .txid,.addressBasic_table .tdb .txid{width: auto}
 /*交易详情页 2017年7月20日15:23:11 xmy新增*/
 .tradeDetailList .rollout{margin-left: -15px;}
 .tradeDetailList .rollin{margin-right: -15px;}

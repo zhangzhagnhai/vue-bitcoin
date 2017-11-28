@@ -47,7 +47,6 @@
 </template>
 <script>
   import { addressUpdate } from '../../store/types.js'
-  import addObject from'../../components/addObject/'
   export default {
     data(){
       var checkAddress = (rule, value, callback) =>{
@@ -162,7 +161,6 @@
         })
       }
     },
-    components: {addObject},
     mounted(){
      // this.getObjectData()
     }

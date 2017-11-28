@@ -61,7 +61,7 @@
 					</thead>
 					<tbody>
 						<tr v-if='lists' v-for='(item,index) in lists.list'>
-							<td>
+							<td class="tda">
 								<a @click="toObjectDetail(item)" class="txid color4">{{item.name}}&nbsp<small>{{item.code}}</small></a>
 							</td>
 							<td><small>{{item.time}}</small></td>
@@ -91,14 +91,12 @@
 <script>
 import MainHeader from '../../components/MainHeader/'
 import Panelwrap from'../../components/PanelWrap/'
-import addObject from'../../components/addObject/'
 import { objectUpdate } from '../../store/types.js'
 
 export default {
 	components: {
 		MainHeader,
-		Panelwrap,
-    addObject
+		Panelwrap
 	},
   data() {
     return {

@@ -102,13 +102,13 @@
 					</thead>
 					<tbody>
 						<tr v-if='trade' v-for="(item, index) in trade.list">
-							<td>
+							<td class="tdb">
 								<a class="txid color4" href="javascript:void(0)">{{item.txid}}</a>
 							</td>
 							<td><small>{{item.acceptTime}}</small></td>
 							<td><span v-bind:class="[item.inout === '转出' ? 'color10' : 'color7']">{{item.inout}}</span></td>
 							<td><small  v-bind:class="[item.inout === '转出' ? 'color10' : 'color7']">{{item.totalAmount}}</small></td>
-							<td>
+							<td class="tdb">
                 <toAddressDetail :address="item.txAddresses">
                   <a href="javascript:void(0)"target = _blank class="txid color4">{{item.txAddresses}}</a>
                 </toAddressDetail>

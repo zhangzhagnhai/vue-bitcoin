@@ -61,7 +61,7 @@
 				</thead>
 				<tbody v-if='lists'>
 					<tr v-for='(item,index) in lists.list' :key="index">
-						<td>
+						<td class="tda">
 							<a @click=toAddressDetail(item,index) class="txid color4">{{item.address}}</a>
 						</td>
 						<td><small>{{item.time}}</small></td>
@@ -70,11 +70,10 @@
 						<td>{{item.tx_num==-1?'-':item.balance | feeFilter}} {{item.tx_num==-1?'':'BTC'}}</td>
 						<td>{{item.tx_num==-1?'-':item.r_address_num}}</td>
 						<td>
-							<a @click=toAddressDetail(item,index) v-if="item.is_cache==1" class="btn btn-success btn-sm f-size-12">地址详情</a>
-              <a @click=toAddressDetail(item,index) v-if="item.is_cache!=1&&isLoadingAddress[item.address]==1&&item.tx_num!=-1" class="btn btn-default btn-sm f-size-12">地址详情</a>
-              <a @click=toAddressDetail(item,index) v-if="item.is_cache!=1&&!isLoadingAddress[item.address]" class="btn btn-default btn-sm f-size-12">地址详情</a>
-              <a @click=toAddressDetail(item,index) v-if="item.is_cache!=1&&isLoadingAddress[item.address]==2" class="btn btn-default btn-sm f-size-12">数据加载中</a>
-              <a @click=toAddressDetail(item,index) v-if="item.is_cache!=1&&isLoadingAddress[item.address]==1&&item.tx_num==-1" class="btn btn-warning btn-sm f-size-12">地址正在添加</a>
+              <a @click=toAddressDetail(item,index) v-if="item.tx_num==-1" class="btn btn-warning btn-sm f-size-12">地址正在添加</a>
+							<a @click=toAddressDetail(item,index) v-if="item.tx_num!=-1&&item.is_cache==1" class="btn btn-success btn-sm f-size-12">地址详情</a>
+              <a @click=toAddressDetail(item,index) v-if="item.tx_num!=-1&&item.is_cache!=1&&!isLoadingAddress[item.address]" class="btn btn-default btn-sm f-size-12">地址详情</a>
+              <a @click=toAddressDetail(item,index) v-if="item.tx_num!=-1&&item.is_cache!=1&&isLoadingAddress[item.address]" class="btn btn-default btn-sm f-size-12">数据加载中</a>
             </td>
 					</tr>
 				</tbody>
@@ -204,16 +203,16 @@ export default {
 			this.getList({ pageNumber:value,address:this.searchVal,desc : this.sortType, orderType: this.acceptType, startTime: this.startTime, endTime: this.endTime})
 		},
     toAddressDetail(data){
-      if(data.is_cache){
+      if(data.tx_num==-1){
+        //this.$set(this.isLoadingAddress,data.address, 1);
+      }else if(data.is_cache){
         this.$router.push({name:"addressdetails",query:{address:data.address}})
-      }else if(data.tx_num==-1){
-        this.$set(this.isLoadingAddress,data.address, 1);
       }else{
         this.$http.post('/api/address/addrTask?',{address:data.address})
           .then(res =>{
             if(res.data.data==0){
               /*正在处理*/
-              this.$set(this.isLoadingAddress,data.address, 2);
+              this.$set(this.isLoadingAddress,data.address, true);
             }else{
               /*处理完毕*/
               this.$router.push({name:"addressdetails",query:{address:data.address}})

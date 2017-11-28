@@ -115,11 +115,11 @@
 					</thead>
 					<tbody>
 						<tr v-if='txList' v-for="(item,index) in txList.list">
-							<td>
+							<td class="tdb">
 								<a class="txid color4" href="javascript:void(0)">{{item.txid}}</a>
 							</td>
 							<td><small>{{item.acceptTime}}</small></td>
-							<td>
+							<td class="tdb">
 							<!-- 	<a class="txid color4 dealAddress" href="javascript:void(0)">{{item.txAddresses}}</a> -->
                 <toAddressDetail :address="item.txAddresses" >
                   <a href="javascript:void(0)" class="txid color4 dealAddress">{{item.txAddresses}}</a>
