@@ -273,7 +273,7 @@
         for (var i = 0; i < this.nodesData.length; i++) {
           /*是否记录过当前的点*/
           if (this.nodesData[i].id == data.unique)
-            return
+            return data.unique;
         }
         this.nodesData.push({
           id: data.unique,

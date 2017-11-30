@@ -191,6 +191,7 @@
         data: {},
         pageData:{},
         analysisData:{},
+        /*是否可以扩线*/
         canAdd: true,
         loading: false,
         defaultAddress:'',
@@ -256,6 +257,7 @@
         this.edgesData = [];
         if(data.txtargetAddList){
           for (var i=0;i<data.txtargetAddList.length; i++) {
+           // console.log( data.unique)
             var toId = this.addNode(data.unique, data.txtargetAddList[i].unique, data.txtargetAddList[i]);
             var oneAddress = data.txtargetAddList[i].txtargetAddList;
             if(oneAddress){
@@ -265,6 +267,8 @@
             }
           }
         }
+       // console.log( this.nodesData )
+       // console.log( this.edgesData )
         this.initVis();
       },
       updateData(data){
@@ -278,7 +282,7 @@
             }
           }
         }
-        console.log(this.edgesData)
+        // console.log(this.edgesData)
         //更新关系图
         this.nodes.update(this.nodesData);
         this.edges.update(this.edgesData);
@@ -326,7 +330,7 @@
         for(var i=0;i<this.nodesData.length;i++){
           /*是否记录过当前的点*/
           if(this.nodesData[i].id==data.unique)
-            return
+            return data.unique;
         }
         this.nodesData.push({
           id: data.unique,
